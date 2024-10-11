@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>FriendBook | Home Page</title>
+    <style>
+        .col-lg-6 {
+        flex: 0 0 auto;
+        width: 45%;
+    }
+    </style>
+</head>
+<body>
+<div th:if="${alert != null}">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="/Images/heart.png" class="rounded me-2" style="height:15px; width:15px;" alt="...">
+                <strong class="me-auto">Friend Book | Connecting People</strong>
+                <small>1 sec ago</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" th:text="${alert}"></div>
+        </div>
+    </div>
+</div>
+<header>
+    <!-- //navbar -->
+    <nav class="navbar navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FriendBook - Connecting People</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+                 aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
+                        <h3>Welcome, <span th:text="${name}"></span></h3>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Dropdown
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<main class="my-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <img th:src="${imageData}" style="height: auto; width: 555px; margin-left: 50px;"
+                 class="img-fluid container my-5" alt="...">
+        </div>
+        <div class="col-lg-6 my-4">
+            <h1 class="my-4 text-center">Welcome, <span th:text="${name}"></span></h1>
+            <h4 class="mb-3">Registration Details</h4>
+            <form class="needs-validation" th:action="@{/updateProfile}" th:object="${user}" method="post"
+                  enctype="multipart/form-data" onsubmit="return validateImageUpload() && validateEmail()">
+                <div class="row g-3">
+                    <!-- First Name -->
+                    <div class="col-sm-6">
+                        <label for="firstName" class="form-label">First name</label>
+                        <input type="text" class="form-control" id="firstname" pattern="[A-Za-z]{1,32}"
+                               th:field="*{firstname}"
+                               placeholder="Enter first name" required>
+                        <div class="invalid-feedback">
+                            Valid first name.
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="col-sm-6">
+                        <label for="lastName" class="form-label">Last name</label>
+                        <input type="text" class="form-control" id="lastname" pattern="[A-Za-z]{1,32}"
+                               th:field="*{lastname}"
+                               placeholder="Enter last name" required>
+                        <div class="invalid-feedback">
+                            Valid last name.
+                        </div>
+                    </div>
+
+                    <!-- Username -->
+                     <div class="col-12">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="username" name="username" th:field="*{username}" placeholder="Username"  required>
+                                <div class="invalid-feedback">
+                                    Your username.
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Address -->
+                    <div class="col-12">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" pattern="[0-9a-zA-Z\s,.\-]{5,100}" id="address"
+                               th:field="*{address}"
+                               placeholder="1234 Main St" required>
+                        <div class="invalid-feedback">
+                            Please enter your address.
+                        </div>
+                    </div>
+
+                    <!-- Address 2 -->
+                    <div class="col-12">
+                        <label for="address2" class="form-label">Address 2</label>
+                        <input type="text" class="form-control" pattern="[0-9a-zA-Z\s,.\-]{5,100}" id="address2"
+                               th:field="*{address2}"
+                               placeholder="Apartment or suite" required>
+                    </div>
+
+                    <!-- State -->
+                    <div class="col-md-4">
+                        <label for="state" class="form-label">State</label>
+                        <select class="form-select" id="state" th:field="*{state}" required>
+                            <option value="" disabled selected>Select State</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Chhatisgarh">Chhatisgarh</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="West Bengal">West Bengal</option>
+
+                        </select>
+                        <div class="invalid-feedback">
+                            Please provide a valid state.
+                        </div>
+                    </div>
+
+                    <!-- City -->
+                    <div class="col-md-5">
+                        <label for="city" class="form-label">City</label>
+                        <select class="form-select" id="city" th:field="*{country}" required>
+                            <option value="" disabled selected>Select City</option>
+                            <option value="Indore">Indore</option>
+                            <option value="Lucknow">Lucknow</option>
+                            <option value="Vishakhapatnam">Vishakhapatnam</option>
+                            <option value="Amritsar">Amritsar</option>
+                            <option value="Raipur">Raipur</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a valid country.
+                        </div>
+                    </div>
+
+
+                    <!-- Zip Code -->
+                    <div class="col-md-3">
+                        <label for="zip" class="form-label">Zip</label>
+                        <input type="text" class="form-control" id="zip" th:field="*{zip}" pattern="[0-9]{6}"
+                               placeholder="Enter Zip Code" required>
+                        <div class="invalid-feedback">
+                            Zip code required.
+                        </div>
+                    </div>
+
+                    <!-- Profile Image -->
+                    <div class="col-md-12">
+                        <label for="profileImage" class="form-label">Profile Image</label>
+                        <input type="file" class="form-control" id="profileImage" accept="image/*" name="profileImage">
+                        <div class="invalid-feedback">
+                            Profile image.
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="col-md-12">
+                        <label for="password" class="form-label">Enter New Password</label>
+                        <input type="password" class="form-control" id="password"
+                               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}" th:field="*{password}"
+                               placeholder="Enter password">
+                        <div class="invalid-feedback">
+                            Password is.
+                        </div>
+                    </div>
+                    <input type="hidden" th:field="*{userId}" name="userId"/>
+                </div>
+                <br><br>
+                <button class="w-100 btn btn-primary btn-lg" type="submit">Save</button>
+            </form>
+        </div>
+        <div class="my-2">
+            <form th:action="@{getprofile}" th:object="${user}" method="post">
+                <input type="hidden" th:field="*{userId}" name="userId"/>
+                <input type="hidden" th:field="*{firstname}" name="firstname"/>
+                <button type="submit" class="w-10 btn btn-outline-danger" style="margin-left: 20px;">Home
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+<hr>
+<footer class="container py-5">
+    <div class="row">
+        <div class="col-12 col-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mb-2" role="img"
+                 viewBox="0 0 24 24">
+                <title>Product</title>
+                <circle cx="12" cy="12" r="10"></circle>
+                <path
+                        d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94">
+                </path>
+            </svg>
+            <small class="d-block mb-3 text-body-secondary">© 2017–2024</small>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Features</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Cool stuff</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Random feature</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Team feature</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Stuff for developers</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Another one</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Last time</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Resource name</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Resource</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Another resource</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Final resource</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Business</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Education</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Government</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Gaming</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Team</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Locations</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Privacy</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Terms</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<script src="script.js"></script>
+<script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
