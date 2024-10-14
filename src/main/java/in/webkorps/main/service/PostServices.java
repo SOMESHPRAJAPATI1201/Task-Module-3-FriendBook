@@ -1,11 +1,14 @@
 package in.webkorps.main.service;
 
+import in.webkorps.main.dto.WrapperComments;
 import in.webkorps.main.entity.Following;
+import in.webkorps.main.entity.PostComments;
 import in.webkorps.main.entity.Posts;
 import in.webkorps.main.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,11 +50,11 @@ public class PostServices {
         return getFilteredList(postsRepo.findAll());
     }
 
-    public List<Posts> getPostsList(Integer userId){
+    public List<Posts> getPostsList(Integer userId) {
         List<Following> list = followingsRepo.findByUserId(userId);
         List<Posts> posts = new ArrayList<>();
-        for(Following follower: list){
-            if(follower.getFollowStatus().toString().equals("UNFOLLOW")){
+        for (Following follower : list) {
+            if (follower.getFollowStatus().toString().equals("UNFOLLOW")) {
                 posts.addAll(getFilteredList(postsRepo.findAllByUserUserId(follower.getFollowerId())));
             }
         }
@@ -71,7 +74,6 @@ public class PostServices {
 
     public List<Posts> getFilteredList(List<Posts> posts) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-
         return posts.stream()
                 .map(post -> {
                     if (post != null) {
@@ -86,11 +88,22 @@ public class PostServices {
                         post.setLikeCount(post.getLikes() != null ? post.getLikes().size() : 0);
                         post.setFormattedDate(formattedDate);
                         post.setImageStringFile("data:image/png;base64," + base64Image);
-                        post.setComments(commentsRepo.findByPostPostId(post.getPostId())); // Consider batch fetching if many
+                        List<PostComments> comments = commentsRepo.findByPostPostId(post.getPostId()).stream().map(
+                                comment -> {
+                                    if (comment != null) {
+                                        String formattedDate1 = comment.getLocalDateTime() != null
+                                                ? comment.getLocalDateTime().format(formatter)
+                                                : "";
+                                        comment.setFormattedDate(formattedDate1);
+                                    }
+                                    return comment;
+                                }
+                        ).collect(Collectors.toList());
+                        post.setComments(comments);
                     }
                     return post;
                 })
-                .filter(Objects::nonNull) // Filter out null posts
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

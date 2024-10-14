@@ -195,8 +195,7 @@
                                             <div class="input-group" style="margin-left: -33px;">
                                                 <input type="text" class="form-control" aria-label="Enter Comment"
                                                        placeholder="Enter Comment"
-                                                       pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{1,}$"
-                                                       th:field="*{comment}" name="postcomment" required="false">
+                                                       th:field="*{comment}" name="postcomment" required>
                                                 <button class="btn btn-outline-secondary" type="submit">Comment</button>
                                                 <button class="btn btn-outline-secondary" type="button"
                                                         th:id="'commentModalTrigger' + ${post.postId}"
