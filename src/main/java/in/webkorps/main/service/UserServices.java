@@ -25,6 +25,7 @@ public class UserServices {
         return userRepo.findById(id).get();
     }
 
+
     public User saveStudent(User user, MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             user.setImageType(file.getContentType());
@@ -130,7 +131,6 @@ public class UserServices {
         userRepo.save(user2);
         return mesg;
     }
-
 
 }
 

@@ -195,8 +195,7 @@
                                             <div class="input-group" style="margin-left: -33px;">
                                                 <input type="text" class="form-control" aria-label="Enter Comment"
                                                        placeholder="Enter Comment"
-                                                       pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{1,}$"
-                                                       th:field="*{comment}" name="postcomment" required="false">
+                                                       th:field="*{comment}" name="postcomment" required>
                                                 <button class="btn btn-outline-secondary" type="submit">Comment</button>
                                                 <button class="btn btn-outline-secondary" type="button"
                                                         th:id="'commentModalTrigger' + ${post.postId}"
@@ -311,9 +310,6 @@
     </div>
 </footer>
 <script src="script.js"></script>
-<script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

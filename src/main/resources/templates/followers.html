@@ -100,19 +100,29 @@
                                 <p class="card-text">This is a wider card with supporting text below as a natural
                                     lead-in to additional content. This content is a little bit longer.</p>
                                 <div class="row container">
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
                                         <form th:action="@{/approveRequest}" method="post">
                                             <input type="hidden" th:value="${user.userId}" name="followerId">
                                             <input type="hidden" th:value="${user_id}" name="userId">
-                                            <button class="btn btn-outline-info btn-sm" type="submit"
-                                                    th:text="${user.followStatus == 'REQUESTED' ? 'ACCEPT' : 'UNFOLLOW'}"></button>
+                                            <button class="btn btn-outline-success btn-sm" type="submit"
+                                                    th:text="${user.followStatus == 'REQUESTED' ? 'ACCEPT' : user.followStatus}"></button>
                                         </form>
                                     </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
+                                        <form th:action="@{/rejectRequest}" method="post">
+                                            <input type="hidden" th:value="${user.userId}" name="followerId">
+                                            <input type="hidden" th:value="${user_id}" name="userId">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit"
+                                                    th:text="'REJECT'"
+                                                    th:if="${user.followStatus == 'REQUESTED'}"></button>
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-4">
                                         <form th:action="@{/setFollowing2}" method="post">
                                             <input type="hidden" th:value="${user.userId}" name="followerId">
                                             <input type="hidden" th:value="${user_id}" name="userId">
-                                            <button class="btn btn-outline-success btn-sm" type="submit" th:text="${user.followBackStatus != null ? user.followBackStatus : 'FOLLOW'}"></button>
+                                            <button class="btn btn-outline-info btn-sm" type="submit"
+                                                    th:text="${user.followBackStatus != null ? user.followBackStatus : 'FOLLOW'}"></button>
                                         </form>
                                     </div>
                                 </div>
@@ -126,7 +136,7 @@
         </div>
     </div>
     <br><br>
-    <form th:action="@{getprofile}"  th:object="${user}" method="post">
+    <form th:action="@{getprofile}" th:object="${user}" method="post">
         <input type="hidden" th:value="${user_id}" name="userId"/>
         <input type="hidden" th:value="${name}" name="firstname"/>
         <button type="submit" class="w-10 btn btn-outline-danger" style="margin-left: 20px;">Home

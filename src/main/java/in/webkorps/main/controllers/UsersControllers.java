@@ -54,7 +54,11 @@ public class UsersControllers {
             return "Login1";
         } catch (Exception e) {
             Logger.LOGGER.info(e.getMessage());
-            model.addAttribute("alert", "Issue in user details.");
+            if(e.getMessage().contains("Duplicate entry")){
+                model.addAttribute("alert", "Email is already associated.");
+            }else{
+                model.addAttribute("alert", "Issue in user details.");
+            }
             model.addAttribute("user", new User());
             return "Register1";
         }

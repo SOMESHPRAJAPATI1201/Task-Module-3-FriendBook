@@ -38,7 +38,7 @@
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" th:field="*{username}" name="username"
-                                   id="floatingInput" placeholder="name@example.com" required>
+                                   id="floatingInput" placeholder="name@example.com" required="true">
                             <label for="floatingInput">Email address</label>
                             <div class="invalid-feedback">
                                 Please enter a valid email.
@@ -47,7 +47,7 @@
 
                         <div class="form-floating my-2">
                             <input type="password" class="form-control" th:field="*{password}" name="password"
-                                   id="floatingPassword" placeholder="Password" required>
+                                   id="floatingPassword" placeholder="Password" required="true">
                             <label for="floatingPassword">Password</label>
                             <div class="invalid-feedback">
                                 Password must be 8-20 characters long, include at least one letter, one number, and one special character.
@@ -68,9 +68,6 @@
                     </form>
                 </main>
             </div>
-            <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
-                    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-                    crossorigin="anonymous"></script>
         </div>
     </div>
     </div>

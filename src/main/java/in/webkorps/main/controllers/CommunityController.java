@@ -133,12 +133,32 @@ public class CommunityController {
     }
 
     @PostMapping("/approveRequest")
-    public String getFollowers(@RequestParam Integer followerId, @RequestParam Integer userId, Model model) {
+    public String approveFollowingRequest(@RequestParam Integer followerId, @RequestParam Integer userId, Model model) {
         try {
             followingServices.approveRequest(followerId, userId);
             User user = userServices.getById(userId);
             if (getFollowers(userId).size() == 0) {
                 return returnProfileByUserId(model, userId, "User Unfollowed Nothing To Show.");
+            } else {
+                model.addAttribute("user_id", userId);
+                model.addAttribute("name", user.getFirstname() + " " + user.getLastname());
+                model.addAttribute("userList", getFollowers(userId));
+                model.addAttribute("alert", "Followers Fetched");
+                return "followers";
+            }
+        } catch (Exception e) {
+            Logger.LOGGER.info(e.getMessage());
+            return returnProfileByUserId(model, userId, "Something went wrong.");
+        }
+    }
+
+    @PostMapping("/rejectRequest")
+    public String rejectFollowingRequest(@RequestParam Integer followerId, @RequestParam Integer userId, Model model) {
+        try {
+            followingServices.rejectRequest(followerId, userId);
+            User user = userServices.getById(userId);
+            if (getFollowers(userId).size() == 0) {
+                return returnProfileByUserId(model, userId, "User Request Rejected Nothing To Show.");
             } else {
                 model.addAttribute("user_id", userId);
                 model.addAttribute("name", user.getFirstname() + " " + user.getLastname());

@@ -1,11 +1,9 @@
 package in.webkorps.main.controllers;
 
-import in.webkorps.main.dto.WrapperComments;
 import in.webkorps.main.dto.WrapperLike;
 import in.webkorps.main.entity.*;
 import in.webkorps.main.service.*;
 import in.webkorps.main.utlls.Logger;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,14 +54,14 @@ public class PostController {
     public String likeUnlikePost(@RequestParam Integer userId, @RequestParam Integer postId,Model model) {
         try {
             if(likesServices.clickLike(userId,postId)){
-                return getProfilePage(model,userId,"Post Liked",postId);
+                return getProfilePage(model,userId,"Post Liked");
             }else{
                 model.addAttribute("likeCount",likesServices.getLike(postId));
-                return getProfilePage(model,userId,"Post Unliked",postId);
+                return getProfilePage(model,userId,"Post Unliked");
             }
         } catch (Exception e) {
             Logger.LOGGER.info(e.getMessage());
-            return getProfilePage(model,userId,"Something went wrong.",postId);
+            return getProfilePage(model,userId,"Something went wrong.");
         }
     }
 
@@ -71,26 +69,12 @@ public class PostController {
     public String setComment(@ModelAttribute("comments") PostComments postComments, Model model){
         try {
             commentsServices.setComment(postComments);
-            List<WrapperComments> comments = commentsServices.getCommentsList(postComments.getPost().getPostId());
-            model.addAttribute("commentList", comments);
-            getProfilePage(model, postComments.getUserId(), "Comment Added Successfully.",postComments.getPost().getPostId());
+            getProfilePage(model, postComments.getUserId(), "Comment Added Successfully.");
             return "Profile";
         }catch (Exception e){
             Logger.LOGGER.info(e.getMessage());
-            return getProfilePage(model,postComments.getUserId(),"Unable to add comment.",postComments.getPost().getPostId());
+            return getProfilePage(model,postComments.getUserId(),"Unable to add comment.");
         }
-    }
-
-    public String getProfilePage(Model model, Integer userId, String alert, Integer postId){
-        List<WrapperComments> comments = commentsServices.getCommentsList(postId);
-        model.addAttribute("commentList", comments);
-        model.addAttribute("postList", postServices.getPostsList(userId));
-        model.addAttribute("user_id", userId);
-        model.addAttribute("comments", new PostComments());
-        model.addAttribute("alert", alert);
-        model.addAttribute("name", userServices.getById(userId).getFirstname()+" "+userServices.getById(userId).getLastname());
-        model.addAttribute("followerRequestCount", followingServices.getFollowerCount(userId));
-        return "Profile";
     }
 
     public String getProfilePage(Model model, Integer userId, String alert){

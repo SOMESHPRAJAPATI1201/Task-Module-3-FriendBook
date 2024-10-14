@@ -46,6 +46,11 @@ public class FollowingServices {
         return followingsRepo.findByUserId(userId);
     }
 
+    public Following getByUserIdAndFollower(Integer userId, Integer followerId){
+        return followingsRepo.findByUserIdAndFollowerId(userId, followerId);
+    }
+
+
     @Transactional
     public Following approveRequest(Integer userId, Integer followerId) {
         Following following = followingsRepo.findByUserIdAndFollowerId(userId, followerId);
@@ -63,6 +68,18 @@ public class FollowingServices {
         }
     }
 
+    @Transactional
+    public Following rejectRequest(Integer userId, Integer followerId) {
+        Following following = followingsRepo.findByUserIdAndFollowerId(userId, followerId);
+        if (following == null) {
+            throw new RuntimeException("UserNotFound");
+        }else{
+            if(following.getFollowStatus().equals(Following.FollowStatus.REQUESTED)){
+                followingsRepo.deleteByUserIdAndFollowerId(userId, followerId);
+            }
+        }
+        return new Following();
+    }
 
     public Integer getFollowerCount(Integer userId){
         List<Following> followers = getFollowers(userId).stream().filter(x->x.getFollowStatus().toString().equals("REQUESTED")).toList();
