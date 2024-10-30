@@ -20,15 +20,9 @@ public class Posts {
     private String postName;
     private LocalDateTime eventDate;
     private String formattedDate;
-    private String imageType;
     private String imageName;
-    @Lob
-    private byte[] imageFile;
-
-    @Lob
-    private String imageStringFile;
-
     private Integer likeCount;
+    private Integer commentCount;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private User user;

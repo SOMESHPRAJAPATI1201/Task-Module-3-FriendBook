@@ -21,20 +21,16 @@ public class User {
     private String firstname;
     private String lastname;
     private String username;
+    private String displayname;
     private String password;
     private String address;
     private String address2;
     private String zip;
     private String state;
-    private String country;
-    private String imageType;
+    private String city;
     private String imageName;
     private String followStatus;
     private String followBackStatus;
-    @Lob
-    private byte[] imageFile;
-    @Lob
-    private String imageStringFile;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user",  fetch = FetchType.LAZY)
     private List<Posts> posts;

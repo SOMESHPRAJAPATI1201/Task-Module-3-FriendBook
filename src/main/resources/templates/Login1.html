@@ -7,6 +7,7 @@
     <title>Friend Book | Connecting People</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -26,43 +27,43 @@
 <main>
     <div class="row">
         <div class="col-lg-6">
-            <img src="/images/istockphoto-1180187740-1024x1024 (1).jpg" alt="" srcset=""
-                 style="height:120%; width:100%;">
+            <img src="/images/istockphoto-1180187740-1024x1024 (1).jpg" alt="" style="height:112%; width:100%;">
         </div>
-        <div class="col-lg-4" style=" margin-left: 7%;">
+        <div class="col-lg-4" style="margin-left: 7%;">
             <div class="container text-center">
                 <main class="form-signin w-100 m-auto">
-                    <form class="needs-validation" novalidate method="post" th:object="${user}" th:action="@{/logForm}">
+                    <form class="needs-validation" id="loginForm" novalidate>
                         <img class="mb-4 my-4" src="/images/logo-black.png" alt="" width="50%" height="50%">
                         <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" th:field="*{username}" name="username"
-                                   id="floatingInput" placeholder="name@example.com" required="true">
-                            <label for="floatingInput">Email address</label>
+                            <input type="email" class="form-control" name="username" id="username"
+                                   placeholder="name@example.com" required>
+                            <label for="username">Email address</label>
+                            <div class="invalid-feedback">Please enter a valid email.</div>
+                        </div>
+                        <div class="form-floating my-2">
+                            <input type="password" class="form-control" name="password" id="password"
+                                   placeholder="Password"
+                                   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$"
+                                   required>
+                            <label for="password">Password</label>
                             <div class="invalid-feedback">
-                                Please enter a valid email.
+                                Password must be 8-20 characters long, include at least one letter, one number, and one
+                                special character.
                             </div>
                         </div>
-
-                        <div class="form-floating my-2">
-                            <input type="password" class="form-control" th:field="*{password}" name="password"
-                                   id="floatingPassword" placeholder="Password" required="true">
-                            <label for="floatingPassword">Password</label>
-                            <div class="invalid-feedback">
-                                Password must be 8-20 characters long, include at least one letter, one number, and one special character.
-                            </div>
+                        <div class="my-3 text-center">
+                            <div class="g-recaptcha" data-sitekey="6LcNR2kqAAAAAJSURcFs0xNHxs-2YuHaBNTv7ri8"
+                                 data-callback="enableSubmitButton"></div>
                         </div>
-
-                        <div class="form-check text-start my-3">
-                            <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                                Remember me
-                            </label>
+                        <div class="text-center">
+                            <button class="btn btn-primary w-50 py-2 my-2" id="mySubmitBtn" type="submit" >Log
+                                In
+                            </button>
+<!--                            <button class="btn btn-primary w-50 py-2 my-2" id="mySubmitBtn" type="submit" disabled>Log-->
+<!--                                In-->
+<!--                            </button>-->
                         </div>
-
-                        <button class="btn btn-primary w-50 py-2 my-2" type="submit">Sign in</button>
-                        <br>
                         <h10 class="my-3">Create an account, <a href="regPage">Register Here</a></h10>
                         <p class="mt-5 mb-3 text-body-secondary">© 2017–2024</p>
                     </form>
@@ -70,18 +71,76 @@
             </div>
         </div>
     </div>
-    </div>
 </main>
-<script src="/script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
-        crossorigin="anonymous"></script>
-</body>
+<script>
+    //alert
+    document.addEventListener('DOMContentLoaded', () => {
+     const toastLiveExample = document.getElementById('liveToast');
+     if (toastLiveExample) {
+         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+         toastBootstrap.show();
+     }
+ });
 
+     //login form
+     document.addEventListener('DOMContentLoaded', function () {
+         const form = document.getElementById('loginForm');
+         form.addEventListener('submit', function (event) {
+             event.preventDefault();
+             if (!form.checkValidity()) {
+                 form.classList.add('was-validated');
+                 return;
+             }
+             const formData = new FormData();
+             const user = {
+                 username: document.getElementById('username').value,
+                 password: document.getElementById('password').value,
+             };
+             formData.append('user', new Blob([JSON.stringify(user)], { type: 'application/json' }));
+             fetch('/logForm', {
+                 method: 'POST',
+                 body: formData,
+                 headers: { 'Accept': 'text/html' },
+             }).then(response => {
+                 if (response.ok) {
+                     const contentType = response.headers.get('content-type');
+                     if (contentType && contentType.includes('text/html')) {
+                         return response.text().then(html => {
+                             document.open();
+                             document.write(html);
+                             document.close();
+                         });
+                     } else {
+                         return response.json().then(data => {
+                             alert('User Signed In successfully!');
+                         });
+                     }
+                 } else {
+                     alert('Wrong Credentials!');
+                 }
+             }).catch(error => console.error('Error:', error));
+         });
+     });
+         //enableSubmitButton
+         function enableSubmitButton() {
+            document.getElementById("mySubmitBtn").disabled = false;
+         }
+
+     //validations
+       (function () {
+                         'use strict';
+                         const forms = document.querySelectorAll('.needs-validation');
+                         Array.prototype.slice.call(forms).forEach(function (form) {
+                             form.addEventListener('submit', function (event) {
+                                 if (!form.checkValidity()) {
+                                     event.preventDefault();
+                                     event.stopPropagation();
+                                 }
+                                 form.classList.add('was-validated');
+                             }, false);
+                         });
+                     })();
+
+</script>
+</body>
 </html>

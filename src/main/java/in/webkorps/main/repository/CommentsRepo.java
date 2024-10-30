@@ -10,4 +10,6 @@ public interface CommentsRepo extends JpaRepository<PostComments,Integer> {
 
     List<PostComments> findByPostPostId(Integer id);
 
+     void deleteById(Integer id);
+
 }

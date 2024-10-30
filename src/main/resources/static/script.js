@@ -7,20 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-                // Client-side validation
                 function validateImageUpload() {
                     const fileInput = document.getElementById('profileImage');
                     const file = fileInput.files[0];
                     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
                     const maxSize = 5 * 1024 * 1024;  // 5 MB
 
-                    // Check file type
                     if (!allowedTypes.includes(file.type)) {
                         alert('Invalid file type. Only JPEG, PNG, and GIF are allowed.');
                         return false;
                     }
 
-                    // Check file size
                     if (file.size > maxSize) {
                         alert('File size exceeds 5 MB.');
                         return false;
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
 
-                // Optional: Add Bootstrap validation styles
                     (function () {
                         'use strict';
                         const forms = document.querySelectorAll('.needs-validation');
@@ -44,6 +40,73 @@ document.addEventListener('DOMContentLoaded', () => {
                             }, false);
                         });
                     })();
+
+//RegisterPage
+
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('registrationForm');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;  // Stop if form validation fails
+        }
+
+        const formData = new FormData();
+
+        const user = {
+            firstname: document.getElementById('firstname').value,
+            lastname: document.getElementById('lastname').value,
+            username: document.getElementById('username').value,
+            address: document.getElementById('address').value,
+            address2: document.getElementById('address2').value,
+            state: document.getElementById('state').value,
+            city: document.getElementById('city').value,
+            zip: document.getElementById('zip').value,
+            password: document.getElementById('password').value,
+        };
+
+        formData.append('user', new Blob([JSON.stringify(user)], { type: 'application/json' }));
+        const profileImage = document.getElementById('profileImage').files[0];
+        formData.append('profileImage', profileImage);
+
+        fetch('/regForm', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'text/html',  // Request HTML response if desired
+            },
+        })
+            .then(response => {
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        // If HTML, redirect to that page
+                        return response.text().then(html => {
+                            document.open();
+                            document.write(html);
+                            document.close();
+                        });
+                    } else {
+                        return response.json().then(data => {
+                            console.log('User registered:', data);
+                            alert('Registration successful!');
+                        });
+                    }
+                } else {
+                    throw new Error('Issue with given details');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during registration.', error);
+            });
+    });
+});
+
+//Login Page
 
 
 

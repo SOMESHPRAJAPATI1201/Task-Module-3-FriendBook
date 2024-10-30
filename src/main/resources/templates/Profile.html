@@ -82,27 +82,25 @@
                     </form>
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                            <form th:action="@{/getHomePage}" method="post">
+                                <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <input type="hidden" th:value="${name}" name="firstname"/>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">Home</button>
+                            </form>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Link</a>
-                        </li>
+                            <form th:action="@{/viewProfile}" method="post">
+                                <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">View Profile</button>
+                            </form>                            </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                               aria-expanded="false">
-                                Dropdown
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
+                            <form th:action="@{/getMyPosts}" method="post">
+                                <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">My Posts</button>
+                            </form>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="logout">Logout</a>
+                            <a class="nav-link active" aria-current="page" href="logout" style="margin-left: 6px;">Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -169,7 +167,7 @@
                                 <p class="card-text"><small class="text-body-secondary">Last updated on <span
                                         th:text="${post.formattedDate}"></span></small></p>
                             </div>
-                            <img th:src="${post.imageStringFile}" class="card-img-top" alt="Post Image"
+                            <img th:src="@{/posts/{name}(name=${post.imageName})}" class="card-img-top" alt="Post Image"
                                  style="width: 100%; height: auto;">
                             <div class="container">
                                 <div class="row my-3">
@@ -195,7 +193,7 @@
                                             <div class="input-group" style="margin-left: -33px;">
                                                 <input type="text" class="form-control" aria-label="Enter Comment"
                                                        placeholder="Enter Comment"
-                                                       th:field="*{comment}" name="postcomment" required>
+                                                       th:field="*{comment}" name="comment" required>
                                                 <button class="btn btn-outline-secondary" type="submit">Comment</button>
                                                 <button class="btn btn-outline-secondary" type="button"
                                                         th:id="'commentModalTrigger' + ${post.postId}"

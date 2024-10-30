@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.thymeleaf.org" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -42,6 +42,10 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
                         <li class="nav-item">
                             <form th:action="@{/getHomePage}" method="post">
@@ -90,67 +94,54 @@
         </figcaption>
     </figure>
     <form class="d-flex mt-3" role="search" onsubmit="return false;">
-        <input class="form-control me-2 my-4" id="myInput" type="search" placeholder="Search Following Users"
-               aria-label="Search" style="width: 257px; margin-left: 1100px;">
+        <input class="form-control me-2 my-4" id="myInput" type="search" placeholder="Search Followers" aria-label="Search"  style="width: 257px; margin-left: 1100px;">
         <button class="btn btn-success" type="submit" style="height: 37px; margin-top: 25px;">Search</button>
     </form>
-
-    <!--   Following-->
+    <!--   Followers Request -->
     <div class="container">
         <div class="row row-cols-1 row-cols-md-2 g-4">
             <div th:each="user : ${userList}" class="col">
                 <div class="card mb-3" style="max-width: 540px;">
                     <div class="row g-0">
                         <div class="col-md-4">
-                            <img img th:src="@{/users/{name}(name=${user.imageName})}" class="img-fluid rounded-start"
-                                 style="height: 233px;" alt="...">
+                            <img th:src="@{/users/{name}(name=${user.imageName})}" class="img-fluid rounded-start"
+                                 style="height: 258px;"
+                                 alt="...">
                         </div>
                         <div class="col-md-8">
                             <div class="card-body">
-                                <button class="card-title" type="button"
-                                        th:id="'commentModalTrigger' + ${user.userId}"
-                                        data-bs-toggle="modal"
-                                        th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"
-                                        th:attr="data-bs-target='#commentModal' + ${user.userId}"
-                                        style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white;margin-left:-11px;">
-                                </button>
+                                <h3 th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"></h3>
                                 <p class="card-text">This is a wider card with supporting text below as a natural
                                     lead-in to additional content. This content is a little bit longer.</p>
-                                <form class="setFollowingForm">
-                                    <input type="hidden" th:value="${user.userId}" class="followerId" name="followerId">
-                                    <input type="hidden" th:value="${user_id}" class="userId" name="userId">
-                                    <button class="btn btn-primary" type="submit"
-                                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
-                                </form>
+                                <div class="row container">
+                                    <div class="col-lg-4">
+                                        <form class="approveRequestForm">
+                                            <input type="hidden" th:value="${user.userId}" class="followerId" name="followerId">
+                                            <input type="hidden" th:value="${user_id}" class="userId" name="userId">
+                                            <button class="btn btn-outline-success btn-sm" type="submit"  th:text="'Accept'"
+                                                    th:if="${user.followStatus == 'REQUESTED'}" style="width: 100px;"></button>
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <form class="rejectRequestForm">
+                                            <input type="hidden" th:value="${user.userId}" class="followerId" name="followerId">
+                                            <input type="hidden" th:value="${user_id}" class="userId" name="userId">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit"
+                                                    th:text="'Reject'"
+                                                    th:if="${user.followStatus == 'REQUESTED'}" style="width: 100px;margin-left: 12px;"></button>
+                                        </form>
+                                    </div>
+<!--                                    <div class="col-lg-4">-->
+<!--                                        <form th:action="@{/setFollowing2}" method="post">-->
+<!--                                            <input type="hidden" th:value="${user.userId}" name="followerId">-->
+<!--                                            <input type="hidden" th:value="${user_id}" name="userId">-->
+<!--                                            <button class="btn btn-outline-info btn-sm" type="submit"-->
+<!--                                                    th:text="${user.followBackStatus != null ? user.followBackStatus : 'FOLLOW'}"></button>-->
+<!--                                        </form>-->
+<!--                                    </div>-->
+                                </div>
                                 <p class="card-text my-1"><small class="text-body-secondary">Last updated 3 mins
                                     ago</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--             modal-->
-                <div class="modal fade" th:id="'commentModal' + ${user.userId}" tabindex="-1"
-                     aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel" th:text="${user.firstname + ' ' + user.lastname}"></h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <table class="table">
-                                    <thead>
-                                    </thead>
-                                    <tbody>
-                                    <h1 th:text="${user.firstname}"></h1>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -158,9 +149,8 @@
             </div>
         </div>
     </div>
-    </div>
     <br><br>
-    <form th:action="@{/getHomePage}" th:object="${user}" method="post">
+    <form th:action="@{/getHomePage}" method="post">
         <input type="hidden" th:value="${user_id}" name="userId"/>
         <input type="hidden" th:value="${name}" name="firstname"/>
         <button type="submit" class="w-10 btn btn-outline-danger" style="margin-left: 20px;">Home
@@ -235,9 +225,9 @@
         });
     });
 
-//Set Following Request
+//Approve Request
 document.addEventListener("DOMContentLoaded", function () {
-  const forms = document.querySelectorAll(".setFollowingForm"); // Select all like forms
+  const forms = document.querySelectorAll(".approveRequestForm"); // Select all like forms
 
   forms.forEach((form) => {
     form.addEventListener("submit", function (event) {
@@ -257,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
 
-      fetch("/setFollowing", {
+      fetch("/approveRequest", {
         method: "POST",
         body: formData,
         headers: {
@@ -291,6 +281,64 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+ //Reject Request
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".rejectRequestForm"); // Select all like forms
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+        userId:form.querySelector(".userId").value,
+        followerId:form.querySelector(".followerId").value
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/rejectRequest", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("Request sent successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("Request sent successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to sent request.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while sending request.");
+        });
+    });
+  });
+});
+
 </script>
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

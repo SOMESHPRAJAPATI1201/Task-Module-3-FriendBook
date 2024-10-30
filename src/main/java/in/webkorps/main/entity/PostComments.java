@@ -20,6 +20,7 @@ public class PostComments {
     private Integer userId;
     private String comment;
     private String firstName;
+    private Integer commentCount;
     private LocalDateTime localDateTime;
     private String formattedDate;
     @ManyToOne

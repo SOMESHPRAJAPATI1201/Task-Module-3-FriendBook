@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>FriendBook | Home Page</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div th:if="${alert != null}">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="/Images/heart.png" class="rounded me-2" style="height:15px; width:15px;" alt="...">
+                <strong class="me-auto">Friend Book | Connecting People</strong>
+                <small>1 sec ago</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" th:text="${alert}"></div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Post</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPostForm" enctype="multipart/form-data">
+                    <div class="col-md-12">
+                        <label for="postContent" class="form-label">Post Content</label>
+                        <textarea class="form-control" id="postContent" name="postContent"
+                                  placeholder=""></textarea>
+                        <div class="invalid-feedback">Post content is required.</div>
+                    </div>
+
+                    <div class="col-md-12 my-2">
+                        <label for="postImage" class="form-label">Profile Image</label>
+                        <input type="file" class="form-control" id="postImage" name="postImage" required>
+                        <div class="invalid-feedback">Profile image is required.</div>
+                    </div>
+
+                    <input type="hidden" id="userId" name="userId" th:value="${user_id}">
+                    <button type="submit" class="btn btn-outline-primary my-4">Add Post</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<header>
+    <!-- navbar -->
+    <nav class="navbar navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FriendBook - Connecting People</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+                 aria-labelledby="offcanvasDarkNavbarLabel" style="width: 750px;">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
+                        <h3>Welcome, <span th:text="${name}"></span></h3>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
+                        <div class="row">
+                            <li class="nav-item col-lg-3">
+                                <form th:action="@{/getHomePage}" method="post">
+                                    <input type="hidden" th:value="${user_id}" name="userId"/>
+                                    <input type="hidden" th:value="${name}" name="firstname"/>
+                                    <button type="submit" class="btn btn-outline-warning">
+                                        Home
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item col-lg-3">
+                                <form th:action="@{/viewProfile}" method="post">
+                                    <input type="hidden" th:value="${user_id}" name="userId"/>
+                                    <button type="submit"
+                                            class="btn btn-outline-success" style="margin-left: -101px;">
+                                        View Profile
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item dropdown col-lg-3">
+                                <form th:action="@{/getMyPosts}" method="post">
+                                    <input type="hidden" th:value="${user_id}" name="userId"/>
+                                    <button type="submit"
+                                            class="btn btn-outline-info" style="margin-left: -162px;">
+                                        My Posts
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item col-lg-3">
+                                <button href="logout" class="btn btn-outline-danger" style="margin-left: -242px;">
+                                    Logout
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+                    <br>
+                    <form class="d-flex mt-3" role="search" onsubmit="return false;">
+                        <input class="form-control me-2" id="myInput" type="search" placeholder="Search Users"
+                               aria-label="Search" style="width: 192px;">
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
+
+                    <!--   Following-->
+                    <div class="container">
+                        <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top: 10px;">
+                            <div th:each="user : ${userList}" class="col">
+                                <div class="card mb-3" style="max-width: 540px;">
+                                    <div class="row g-0">
+                                        <div class="col-md-4">
+                                            <img img th:src="@{/users/{name}(name=${user.imageName})}"
+                                                 class="img-fluid rounded-start" style="height: 233px;" alt="...">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body" style="height: 204px;">
+                                                <h5 class="card-title"
+                                                    th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"></h5>
+                                                <p class="card-text">Post : 44 <br>Followers : 50 <br> Following : 15
+                                                </p>
+                                                <form th:action="@{/setFollowing}" method="post">
+                                                    <input type="hidden" th:value="${user.userId}" name="followerId">
+                                                    <input type="hidden" th:value="${user_id}" name="userId">
+                                                    <button class="btn btn-primary" type="submit"
+                                                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
+                                                </form>
+                                                <p class="card-text my-1"><small class="text-body-secondary">Last
+                                                    updated 3 mins ago</small></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<main class="my-5">
+    <div class="row container text-center" style="margin-left: 9%;">
+        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem; height:290px;">
+            <img src="/images/addPost.jpg" alt="Nature Image"
+                 style="max-width: 100%; height: auto; margin-top: 10px;"
+                 class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">Add Post To Your Feed</h5>
+                <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add
+                    Post</a>
+            </div>
+        </div>
+        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
+            <img src="/images/myProfile.jpg" alt="Nature Image"
+                 style="max-width: 100%; height: auto; margin-top: 10px;"
+                 class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">View My Profile</h5>
+                <form th:action="@{viewProfile}" method="post">
+                    <input type="hidden" th:value="${user_id}" name="userId">
+                    <button class="btn btn-primary" type="submit">View Profile</button>
+                </form>
+            </div>
+        </div>
+        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
+            <img src="/images/following.jpg" alt="Nature Image"
+                 style="max-width: 100%; height: 61%; margin-top: 10px;"
+                 class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">See Your Following</h5>
+                <form th:action="@{getFollowing}" method="post">
+                    <input type="hidden" th:value="${user_id}" name="userId">
+                    <button class="btn btn-primary position-relative" type="submit">Following
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              th:text="${followingRequestCount}"></span></button>
+                </form>
+                </form>
+            </div>
+        </div>
+        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
+            <img src="/images/followers.jpg" alt="Nature Image"
+                 style="max-width: 100%; height: 61%; margin-top: 10px;"
+                 class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">See Whom You Follows</h5>
+                <form th:action="@{getFollowers}" method="post">
+                    <input type="hidden" th:value="${user_id}" name="userId">
+                    <button class="btn btn-primary position-relative" type="submit">Followers
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              th:text="${followerRequestCount}"></span></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <table class="my-4">
+            <tr th:each="post : ${postList}">
+                <td>
+                    <div class="my-4">
+                        <div class="card mb-3 container" style="width: 970px;height: 723px;margin-left: 154px;">
+                            <div class="card-body">
+                                <h5 class="card-title"
+                                    th:text="${post.user.firstname + '(You) Posted On FriendBook'}"></h5>
+                                <p class="card-text" th:text="${post.postName}"></p>
+                                <p class="card-text"><small class="text-body-secondary">Last updated on <span
+                                        th:text="${post.formattedDate}"></span></small></p>
+                            </div>
+                            <img th:src="@{/posts/{name}(name=${post.imageName})}" class="card-img-top"
+                                 alt="Post Image"
+                                 style="width: 945px;height: 500px;">
+                            <div class="container">
+                                <div class="row my-3">
+                                    <div class="col-lg-1">
+                                        <!--like-->
+                                        <form class="likePostForm">
+                                            <input type="hidden" th:value="${user_id}" class="userId" name="userId">
+                                            <input type="hidden" th:value="${post.postId}" class="postId" name="postId">
+                                            <button class="btn btn-outline-danger position-relative" type="submit"
+                                                    style="border-radius:10px;height: 38px;">
+                                                <img src="/images/heart-love.png" style="height:28px; width:auto;">
+                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                      th:text="${post.likeCount}"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Comment Form -->
+                                    <div class="col-lg-11">
+                                        <form class="addCommentForm">
+                                            <input type="hidden" th:value="${user_id}" class="userId" name="userId">
+                                            <input type="hidden" th:value="${post.postId}" class="postId"
+                                                   name="post.postId">
+                                            <div class="input-group" style="margin-left: -33px;">
+                                                <input type="text" class="form-control comment"
+                                                       aria-label="Enter Comment" style="margin-left: 29px;"
+                                                       placeholder="Enter Comment" name="comment" id="comment" required>
+                                                <button class="btn btn-outline-secondary" type="submit">Comment</button>
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                        th:id="'commentModalTrigger' + ${post.postId}"
+                                                        data-bs-toggle="modal"
+                                                        th:attr="data-bs-target='#commentModal' + ${post.postId}">
+                                                    View All Comments<span
+                                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
+                                                        th:text="${post.commentCount}"></span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" th:id="'commentModal' + ${post.postId}" tabindex="-1"
+                                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Post
+                                                        Comments</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>User</th>
+                                                            <th>Comment</th>
+                                                            <th>Date</th>
+                                                            <th>Edit</th>
+                                                            <th>Delete</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr th:each="comm : ${post.comments}">
+                                                            <th scope="row">#</th>
+                                                            <td th:text="${comm.firstName}"></td>
+                                                            <td th:text="${comm.comment}" id="editComment"></td>
+                                                            <td th:text="${comm.formattedDate}"></td>
+                                                            <td>
+                                                                <form class="editCommentForm">
+                                                                    <input type="hidden" th:value="${user_id}"
+                                                                           class="userId" name="userId">
+                                                                    <input type="hidden" th:value="${post.postId}"
+                                                                           class="postId" name="postId">
+                                                                    <input type="hidden" th:value="${comm.id}"
+                                                                           class="commentId">
+                                                                    <button type="button"
+                                                                            class="btn btn-outline-secondary edit-btn"
+                                                                            th:attr="data-comment-id=${comm.id}">
+                                                                        Edit
+                                                                    </button>
+                                                                    <div class="form-floating comment-box hidden"
+                                                                         th:attr="data-comment-box-id=${comm.id}"
+                                                                         style="margin-top: -37px; margin-left: 65px;">
+                                                                        <div class="input-group mb-3">
+                                                                            <input type="text"
+                                                                                   class="form-control comment"
+                                                                                   th:value="${comm.comment}"
+                                                                                   placeholder="user comment"
+                                                                                   aria-label="user comment"
+                                                                                   aria-describedby="button-addon2">
+                                                                            <button class="btn btn-outline-secondary"
+                                                                                    type="submit" id="button-addon2">
+                                                                                Save
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </td>
+                                                            <td>
+                                                                <form class="deleteCommentForm">
+                                                                    <input type="hidden" th:value="${user_id}"
+                                                                           class="userId" name="userId">
+                                                                    <input type="hidden" th:value="${post.postId}"
+                                                                           class="postId" name="postId">
+                                                                    <input type="hidden" th:value="${comm.id}"
+                                                                           class="commentId">
+                                                                    <button class="btn btn-outline-secondary"
+                                                                            type="submit">Delete
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br><br>
+</main>
+<hr>
+<footer class="container py-5">
+    <div class="row">
+        <div class="col-12 col-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mb-2" role="img"
+                 viewBox="0 0 24 24">
+                <title>Product</title>
+                <circle cx="12" cy="12" r="10"></circle>
+                <path
+                        d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94">
+                </path>
+            </svg>
+            <small class="d-block mb-3 text-body-secondary">© 2017–2024</small>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Features</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Cool stuff</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Random feature</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Team feature</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Stuff for developers</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Another one</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Last time</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Resource name</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Resource</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Another resource</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Final resource</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Business</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Education</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Government</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Gaming</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="link-secondary text-decoration-none" href="#">Team</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Locations</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Privacy</a></li>
+                <li><a class="link-secondary text-decoration-none" href="#">Terms</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<script>
+    $(document).ready(function() {
+        $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            console.log(value)
+            $(".col").filter(function() {
+                let cardTitle = $(this).find(".card-title").text().toLowerCase();
+                $(this).toggle(cardTitle.indexOf(value) > -1);
+            });
+        });
+    });
+</script>
+<script src="/home.js"></script>
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+</html>
