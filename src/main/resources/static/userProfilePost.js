@@ -61,24 +61,25 @@ function attachLikeFormListeners() {
 
 document.addEventListener("DOMContentLoaded", attachLikeFormListeners);
 
-//AddComment
-function attachAddCommentFormListeners() {
-  const forms = document.querySelectorAll(".addCommentForm");
-  forms.forEach((form) => {
-    form.addEventListener("submit", function (event) {
-      event.preventDefault(); // Prevent default form submission
+//AddCommentForm
 
-      if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        return;
-      }
+document.body.addEventListener("submit", function (event) {
+  if (event.target.matches(".addCommentForm")) {
+    event.preventDefault();
+    // Process the form submission as before
+    const form = event.target;
 
-       const postComments = {
+    if (!form.checkValidity()) {
+      form.classList.add("was-validated");
+      return;
+    }
+
+const postComments = {
               post: {
                 postId: form.querySelector(".postId").value, // Select fields from current form
               },
               userId: form.querySelector(".userId").value,
-              comment: form.querySelector("#comment").value,
+              comment: form.querySelector(".comment").value
             };
 
              const requestBody = {
@@ -119,10 +120,72 @@ function attachAddCommentFormListeners() {
           alert("An error occurred while adding comment.");
         });
     });
-  });
-}
+  }
+});
 
-document.addEventListener("DOMContentLoaded", attachAddCommentFormListeners);
+
+//AddComment
+//function attachAddCommentFormListeners() {
+//  const forms = document.querySelectorAll(".addCommentForm");
+//  forms.forEach((form) => {
+//    form.addEventListener("submit", function (event) {
+//      event.preventDefault(); // Prevent default form submission
+//
+//      if (!form.checkValidity()) {
+//        form.classList.add("was-validated");
+//        return;
+//      }
+//
+//       const postComments = {
+//              post: {
+//                postId: form.querySelector(".postId").value, // Select fields from current form
+//              },
+//              userId: form.querySelector(".userId").value,
+//              comment: form.querySelector(".comment").value
+//            };
+//
+//             const requestBody = {
+//                    postComments : postComments,
+//                    redirectPage: form.querySelector(".redirectPage").value,
+//                    followerId: form.querySelector(".followerId").value
+//                  };
+//
+//      fetch("/addComment", {
+//        method: "POST",
+//        body: JSON.stringify(requestBody),
+//        headers: {
+//          "Content-Type": "application/json",
+//          Accept: "text/html",
+//        },
+//      })
+//        .then((response) => {
+//          if (response.ok) {
+//            const contentType = response.headers.get("content-type");
+//            if (contentType.includes("text/html")) {
+//              return response.text().then((html) => {
+//                const parser = new DOMParser();
+//                const doc = parser.parseFromString(html, "text/html");
+//                document.body.innerHTML = doc.body.innerHTML;
+//                attachAddCommentFormListeners(); // Reattach listeners after content update
+//              });
+//            } else {
+//              return response.json().then((data) => {
+//                alert(data.alert);
+//              });
+//            }
+//          } else {
+//            throw new Error("Failed to add comment");
+//          }
+//        })
+//        .catch((error) => {
+//          console.error("Error:", error);
+//          alert("An error occurred while adding comment.");
+//        });
+//    });
+//  });
+//}
+//
+//document.addEventListener("DOMContentLoaded", attachAddCommentFormListeners);
 
 
 //Delete Comment
@@ -142,7 +205,7 @@ function attachDeleteCommentFormListeners() {
                  postId: form.querySelector(".postId").value, // Select fields from current form
                },
                userId: form.querySelector(".userId").value,
-               id: form.querySelector(".commentId").value,
+               id: form.querySelector(".commentId").value
              };
 
              const requestBody = {
@@ -187,6 +250,8 @@ function attachDeleteCommentFormListeners() {
 }
 
 document.addEventListener("DOMContentLoaded", attachDeleteCommentFormListeners);
+
+
 
 //Edit Comment
 function attachEditCommentFormListeners() {

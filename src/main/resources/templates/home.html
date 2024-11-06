@@ -36,21 +36,21 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addPostForm" enctype="multipart/form-data">
+                <form class="addPostForm" enctype="multipart/form-data" novaliadte>
                     <div class="col-md-12">
                         <label for="postContent" class="form-label">Post Content</label>
-                        <textarea class="form-control" id="postContent" name="postContent"
+                        <textarea class="form-control postContent" id="postContent" name="postContent"
                                   placeholder=""></textarea>
                         <div class="invalid-feedback">Post content is required.</div>
                     </div>
 
                     <div class="col-md-12 my-2">
                         <label for="postImage" class="form-label">Profile Image</label>
-                        <input type="file" class="form-control" id="postImage" name="postImage" required>
+                        <input type="file" class="form-control postImage" id="postImage" name="postImage" required>
                         <div class="invalid-feedback">Profile image is required.</div>
                     </div>
 
-                    <input type="hidden" id="userId" name="userId" th:value="${user_id}">
+                    <input type="hidden" id="userId" class="userId" name="userId" th:value="${user_id}">
                     <button type="submit" class="btn btn-outline-primary my-4">Add Post</button>
                 </form>
             </div>
@@ -85,7 +85,8 @@
                             <li class="nav-item col-lg-3">
                                 <form class="followerRequestForm">
                                     <input type="hidden" th:value="${user_id}" name="userId" class="userId">
-                                    <button type="submit" class="btn btn-primary">Notifications <span class="badge text-bg-warning" th:text="${RequestCount}"></span>
+                                    <button type="submit" class="btn btn-primary">Notifications <span
+                                            class="badge text-bg-warning" th:text="${RequestCount}"></span>
                                     </button>
                                 </form>
                             </li>
@@ -107,8 +108,7 @@
                             <li class="nav-item dropdown col-lg-3">
                                 <form th:action="@{/getMyPosts}" method="post">
                                     <input type="hidden" th:value="${user_id}" name="userId"/>
-                                    <button type="submit"
-                                            class="btn btn-secondary" style="margin-left: -155px;">
+                                    <button type="submit" class="btn btn-secondary" style="margin-left: -155px;">
                                         My Posts
                                     </button>
                                 </form>
@@ -136,8 +136,11 @@
                                         </div>
                                         <div class="col-md-8">
                                             <div class="card-body" style="height: 204px;">
-                                                <h5 class="card-title"
-                                                    th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"></h5>
+                                                <form class="userDetails">
+                                                    <input type="hidden" th:value="${user.userId}" class="followerId">
+                                                    <input type="hidden"th:value="${user_id}" class="userId">
+                                                    <button th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}" type="submit" style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white; margin-left : -13px;"></button>
+                                                </form>
                                                 <p class="card-text">Post : 44 <br>Followers : 50 <br>
                                                     Following : 15
                                                 </p>
@@ -241,7 +244,7 @@
                                 <div class="row my-3">
                                     <div class="col-lg-1">
                                         <!--like-->
-                                        <form class="likePostForm" novalidate method="post">
+                                        <form class="likePostForm" novalidate>
                                             <input type="hidden" th:value="${user_id}" class="userId" name="userId">
                                             <input type="hidden" th:value="${post.postId}" class="postId" name="postId">
                                             <input type="hidden" name="redirectPage" value="home" class="redirectPage">
@@ -256,13 +259,15 @@
 
                                     <!-- Comment Form -->
                                     <div class="col-lg-11">
-                                        <form class="addCommentForm">
+                                        <form class="addCommentForm" novalidate>
                                             <input type="hidden" th:value="${user_id}" class="userId"
                                                    name="userId">
                                             <input type="hidden" th:value="${post.postId}" class="postId"
                                                    name="post.postId">
+                                            <input type="hidden" name="redirectPage" value="home"
+                                                   class="redirectPage">
                                             <div class="input-group" style="margin-left: -33px;">
-                                                <input type="text" class="form-control comment"
+                                                <input type="text" class="form-control"
                                                        aria-label="Enter Comment" style="margin-left: 29px;"
                                                        placeholder="Enter Comment" name="comment"
                                                        id="comment" required>
@@ -311,10 +316,10 @@
                                                             <th scope="row">#</th>
                                                             <td th:text="${comm.firstName}"></td>
                                                             <td th:text="${comm.comment}"
-                                                                id="editComment"></td>
+                                                                id="editComment" class="comment"></td>
                                                             <td th:text="${comm.formattedDate}"></td>
                                                             <td>
-                                                                <form class="editCommentForm">
+                                                                <form class="editCommentForm" novalidate>
                                                                     <input type="hidden"
                                                                            th:value="${user_id}"
                                                                            class="userId" name="userId">
@@ -324,6 +329,9 @@
                                                                     <input type="hidden"
                                                                            th:value="${comm.id}"
                                                                            class="commentId">
+                                                                    <input type="hidden" name="redirectPage"
+                                                                           value="home"
+                                                                           class="redirectPage">
                                                                     <button type="button"
                                                                             class="btn btn-outline-secondary edit-btn"
                                                                             th:attr="data-comment-id=${comm.id}">
@@ -349,7 +357,7 @@
                                                                 </form>
                                                             </td>
                                                             <td>
-                                                                <form class="deleteCommentForm">
+                                                                <form class="deleteCommentForm" novalidate>
                                                                     <input type="hidden"
                                                                            th:value="${user_id}"
                                                                            class="userId" name="userId">
@@ -359,6 +367,9 @@
                                                                     <input type="hidden"
                                                                            th:value="${comm.id}"
                                                                            class="commentId">
+                                                                    <input type="hidden" name="redirectPage"
+                                                                           value="home"
+                                                                           class="redirectPage">
                                                                     <button class="btn btn-outline-secondary"
                                                                             type="submit">Delete
                                                                     </button>
@@ -449,8 +460,495 @@
             });
         });
     });
+
+//getUserDetails
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".userDetails");
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+            userId:form.querySelector(".userId").value,
+            followerId:form.querySelector(".followerId").value,
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/getPostsById", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("User Fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("User fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch user.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching user.");
+        });
+    });
+  });
+});
+
+//Edit Button
+document.addEventListener("DOMContentLoaded", () => {
+  // Add click event listener to all edit buttons
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      const commentId = btn.getAttribute("data-comment-id");
+      const commentBox = document.querySelector(
+        `[data-comment-box-id="${commentId}"]`
+      );
+
+      // Toggle visibility of the comment box
+      commentBox.classList.toggle("hidden");
+    });
+  });
+});
+
+
+     (function () {
+                        'use strict';
+                        const forms = document.querySelectorAll('.needs-validation');
+                        Array.prototype.slice.call(forms).forEach(function (form) {
+                            form.addEventListener('submit', function (event) {
+                                if (!form.checkValidity()) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                form.classList.add('was-validated');
+                            }, false);
+                        });
+                    })();
+
+
+function attachLikeFormListeners() {
+    const forms = document.querySelectorAll(".likePostForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+            const posts = {
+                postId: parseInt(form.querySelector(".postId").value),
+                user: { userId: parseInt(form.querySelector(".userId").value) },
+            };
+            const redirectPage = form.querySelector(".redirectPage").value;
+
+            const requestBody = {
+                posts: posts,
+                redirectPage: redirectPage,
+            };
+
+            fetch("/like", {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to like post");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while liking the post.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachLikeFormListeners);
+
+//Add Comment
+function attachAddCommentFormListeners() {
+    const forms = document.querySelectorAll(".addCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+      const postComments = {
+                    post: {
+                      postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+                    },
+                    userId: parseInt(form.querySelector(".userId").value),
+                    comment: form.querySelector("#comment").value
+                  };
+
+                   const requestBody = {
+                          postComments : postComments,
+                          redirectPage: form.querySelector(".redirectPage").value,
+                        };
+
+            fetch("/addComment", {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to add comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while adding the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachAddCommentFormListeners);
+
+//Delete Comment
+function attachDeleteCommentFormListeners() {
+    const forms = document.querySelectorAll(".deleteCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+             const postComments = {
+               post: {
+                 postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+               },
+               userId: parseInt(form.querySelector(".userId").value),
+               id: parseInt(form.querySelector(".commentId").value)
+             };
+
+             const requestBody = {
+                    postComments : postComments,
+                    redirectPage: form.querySelector(".redirectPage").value
+                  };
+
+            fetch("/deleteComment", {
+                method: "DELETE",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to delete comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while deleting the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachDeleteCommentFormListeners);
+
+//Edit Comment
+function attachEditCommentFormListeners() {
+    const forms = document.querySelectorAll(".editCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+            const postComments = {
+                    post: {
+                      postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+                    },
+                    userId: parseInt(form.querySelector(".userId").value),
+                    id : parseInt(form.querySelector(".commentId").value),
+                    comment: form.querySelector(".comment").value
+                  };
+
+                   const requestBody = {
+                          postComments : postComments,
+                          redirectPage: form.querySelector(".redirectPage").value,
+                        };
+
+
+            fetch("/editComment", {
+                method: "PUT",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to edit comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while editing the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachEditCommentFormListeners);
+
+// Add Post
+function attachAddPostFormListeners() {
+    const forms = document.querySelectorAll(".addPostForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+    const formData = new FormData();
+
+    const postContent = form.querySelector(".postContent").value;
+
+    const post = {
+      postName: postContent,
+      user: {
+        userId: form.querySelector(".userId").value,
+      },
+    };
+
+    formData.append(
+      "post",
+      new Blob([JSON.stringify(post)], { type: "application/json" })
+    );
+
+    const postImage = form.querySelector(".postImage").files[0];
+    if (postImage) {
+      formData.append("postImage", postImage);
+    }
+
+            fetch("/addPost", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to add post");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while adding the post.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachAddPostFormListeners);
+
+
+//getFollowersRequest
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".followerRequestForm"); // Select all like forms
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const user = {
+        userId: form.querySelector(".userId").value,
+      };
+
+      formData.append(
+        "user",
+        new Blob([JSON.stringify(user)], { type: "application/json" })
+      );
+
+      fetch("/getFollowersRequest", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("Followers request fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("Followers request fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch Followers request.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching Followers request.");
+        });
+    });
+  });
+});
+
+//Set Following
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".setFollowingForm"); // Select all like forms
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+        userId:form.querySelector(".userId").value,
+        followerId:form.querySelector(".followerId").value
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/setFollowing1", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("Request sent successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("Request sent successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to sent request.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while sending request.");
+        });
+    });
+  });
+});
+
 </script>
-<script src="/home.js"></script>
+<!--<script src="/home.js"></script>-->
 <script src="script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

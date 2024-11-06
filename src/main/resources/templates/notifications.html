@@ -110,7 +110,11 @@
                         </div>
                         <div class="col-md-8">
                             <div class="card-body">
-                                <h3 th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"></h3>
+                                <form class="userDetails">
+                                    <input type="hidden" th:value="${user.userId}" class="followerId">
+                                    <input type="hidden"th:value="${user_id}" class="userId">
+                                    <button th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}" type="submit" style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white; margin-left : -13px;"></button>
+                                </form>
                                 <p class="card-text">This is a wider card with supporting text below as a natural
                                     lead-in to additional content. This content is a little bit longer.</p>
                                 <div class="row container">
@@ -224,6 +228,64 @@
             });
         });
     });
+
+//getUserDetails
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".userDetails");
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+            userId:form.querySelector(".userId").value,
+            followerId:form.querySelector(".followerId").value,
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/getPostsById", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("User Fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("User fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch user.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching user.");
+        });
+    });
+  });
+});
+
 
 //Approve Request
 document.addEventListener("DOMContentLoaded", function () {

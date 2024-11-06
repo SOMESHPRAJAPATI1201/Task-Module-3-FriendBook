@@ -27,39 +27,6 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Post</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addPostForm" enctype="multipart/form-data">
-                    <div class="col-md-12">
-                        <label for="postContent" class="form-label">Post Content</label>
-                        <textarea class="form-control" id="postContent" name="postContent"
-                                  placeholder=""></textarea>
-                        <div class="invalid-feedback">Post content is required.</div>
-                    </div>
-
-                    <div class="col-md-12 my-2">
-                        <label for="postImage" class="form-label">Profile Image</label>
-                        <input type="file" class="form-control" id="postImage" name="postImage" required>
-                        <div class="invalid-feedback">Profile image is required.</div>
-                    </div>
-
-                    <input type="hidden" id="userId" name="userId" th:value="${user_id}">
-                    <button type="submit" class="btn btn-outline-primary my-4">Add Post</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 <header>
     <!-- navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
@@ -160,59 +127,6 @@
     </nav>
 </header>
 <main class="my-5">
-    <div class="row container text-center" style="margin-left: 9%;">
-        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem; height:290px;">
-            <img src="/images/addPost.jpg" alt="Nature Image"
-                 style="max-width: 100%; height: auto; margin-top: 10px;"
-                 class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">Add Post To Your Feed</h5>
-                <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add
-                    Post</a>
-            </div>
-        </div>
-        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
-            <img src="/images/myProfile.jpg" alt="Nature Image"
-                 style="max-width: 100%; height: auto; margin-top: 10px;"
-                 class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">View My Profile</h5>
-                <form th:action="@{viewProfile}" method="post">
-                    <input type="hidden" th:value="${user_id}" name="userId">
-                    <button class="btn btn-primary" type="submit">View Profile</button>
-                </form>
-            </div>
-        </div>
-        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
-            <img src="/images/following.jpg" alt="Nature Image"
-                 style="max-width: 100%; height: 61%; margin-top: 10px;"
-                 class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">See Your Following</h5>
-                <form th:action="@{getFollowing}" method="post">
-                    <input type="hidden" th:value="${user_id}" name="userId">
-                    <button class="btn btn-primary position-relative" type="submit">Following
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              th:text="${followingRequestCount}"></span></button>
-                </form>
-                </form>
-            </div>
-        </div>
-        <div class="card col-lg-3 mx-2 my-4" style="width: 18rem;  height:290px;">
-            <img src="/images/followers.jpg" alt="Nature Image"
-                 style="max-width: 100%; height: 61%; margin-top: 10px;"
-                 class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">See Whom You Follows</h5>
-                <form th:action="@{getFollowers}" method="post">
-                    <input type="hidden" th:value="${user_id}" name="userId">
-                    <button class="btn btn-primary position-relative" type="submit">Followers
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              th:text="${followerRequestCount}"></span></button>
-                </form>
-            </div>
-        </div>
-    </div>
     <div class="container">
         <table class="my-4">
             <tr th:each="post : ${postList}">
@@ -221,7 +135,7 @@
                         <div class="card mb-3 container" style="width: 970px;height: 723px;margin-left: 154px;">
                             <div class="card-body">
                                 <h5 class="card-title"
-                                    th:text="${post.user.firstname + '(You) Posted On FriendBook'}"></h5>
+                                    th:text="|${post.user.firstname} ${post.user.lastname}(You) Posted On FriendBook|"></h5>
                                 <p class="card-text" th:text="${post.postName}"></p>
                                 <p class="card-text"><small class="text-body-secondary">Last updated on <span
                                         th:text="${post.formattedDate}"></span></small></p>
@@ -233,9 +147,13 @@
                                 <div class="row my-3">
                                     <div class="col-lg-1">
                                         <!--like-->
-                                        <form class="likePostForm">
+                                        <form class="likePostForm" novalidate>
                                             <input type="hidden" th:value="${user_id}" class="userId" name="userId">
                                             <input type="hidden" th:value="${post.postId}" class="postId" name="postId">
+                                            <input type="hidden" th:value="${post.user.userId}" class="followerId"
+                                                   name="followerId">
+                                            <input type="hidden" name="redirectPage" value="myPost"
+                                                   class="redirectPage">
                                             <button class="btn btn-outline-danger position-relative" type="submit"
                                                     style="border-radius:10px;height: 38px;">
                                                 <img src="/images/heart-love.png" style="height:28px; width:auto;">
@@ -247,10 +165,14 @@
 
                                     <!-- Comment Form -->
                                     <div class="col-lg-11">
-                                        <form class="addCommentForm">
+                                        <form class="addCommentForm" novalidate>
                                             <input type="hidden" th:value="${user_id}" class="userId" name="userId">
                                             <input type="hidden" th:value="${post.postId}" class="postId"
                                                    name="post.postId">
+                                            <input type="hidden" th:value="${post.user.userId}" class="followerId"
+                                                   name="followerId">
+                                            <input type="hidden" name="redirectPage" value="myPost"
+                                                   class="redirectPage">
                                             <div class="input-group" style="margin-left: -33px;">
                                                 <input type="text" class="form-control comment"
                                                        aria-label="Enter Comment" style="margin-left: 29px;"
@@ -298,13 +220,17 @@
                                                             <td th:text="${comm.comment}" id="editComment"></td>
                                                             <td th:text="${comm.formattedDate}"></td>
                                                             <td>
-                                                                <form class="editCommentForm">
+                                                                <form class="editCommentForm" novalidate>
                                                                     <input type="hidden" th:value="${user_id}"
                                                                            class="userId" name="userId">
                                                                     <input type="hidden" th:value="${post.postId}"
                                                                            class="postId" name="postId">
                                                                     <input type="hidden" th:value="${comm.id}"
                                                                            class="commentId">
+                                                                    <input type="hidden" th:value="${post.user.userId}"
+                                                                           class="followerId" name="followerId">
+                                                                    <input type="hidden" name="redirectPage"
+                                                                           value="myPost" class="redirectPage">
                                                                     <button type="button"
                                                                             class="btn btn-outline-secondary edit-btn"
                                                                             th:attr="data-comment-id=${comm.id}">
@@ -329,13 +255,17 @@
                                                                 </form>
                                                             </td>
                                                             <td>
-                                                                <form class="deleteCommentForm">
+                                                                <form class="deleteCommentForm" novalidate>
                                                                     <input type="hidden" th:value="${user_id}"
                                                                            class="userId" name="userId">
                                                                     <input type="hidden" th:value="${post.postId}"
                                                                            class="postId" name="postId">
                                                                     <input type="hidden" th:value="${comm.id}"
-                                                                           class="commentId">
+                                                                           class="commentId" name="commentId">
+                                                                    <input type="hidden" th:value="${post.user.userId}"
+                                                                           class="followerId" name="followerId">
+                                                                    <input type="hidden" name="redirectPage"
+                                                                           value="myPost" class="redirectPage">
                                                                     <button class="btn btn-outline-secondary"
                                                                             type="submit">Delete
                                                                     </button>
@@ -425,9 +355,274 @@
             });
         });
     });
+
+    //Live Alerts
+    document.addEventListener('DOMContentLoaded', () => {
+            const toastLiveExample = document.getElementById('liveToast');
+
+            if (toastLiveExample) {
+                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+                toastBootstrap.show();
+            }
+        });
+
+//Edit Button
+document.addEventListener("DOMContentLoaded", () => {
+  // Add click event listener to all edit buttons
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      const commentId = btn.getAttribute("data-comment-id");
+      const commentBox = document.querySelector(
+        `[data-comment-box-id="${commentId}"]`
+      );
+
+      // Toggle visibility of the comment box
+      commentBox.classList.toggle("hidden");
+    });
+  });
+});
+
+
+     (function () {
+                        'use strict';
+                        const forms = document.querySelectorAll('.needs-validation');
+                        Array.prototype.slice.call(forms).forEach(function (form) {
+                            form.addEventListener('submit', function (event) {
+                                if (!form.checkValidity()) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                form.classList.add('was-validated');
+                            }, false);
+                        });
+                    })();
+
+    function attachLikeFormListeners() {
+    const forms = document.querySelectorAll(".likePostForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+            const posts = {
+                postId: parseInt(form.querySelector(".postId").value),
+                user: { userId: parseInt(form.querySelector(".userId").value) },
+            };
+            const redirectPage = form.querySelector(".redirectPage").value;
+            const followerId = parseInt(form.querySelector(".followerId").value);
+
+            const requestBody = {
+                posts: posts,
+                redirectPage: redirectPage,
+                followerId: followerId
+            };
+
+            fetch("/like", {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to like post");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while liking the post.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachLikeFormListeners);
+
+    //Add Comment
+function attachAddCommentFormListeners() {
+    const forms = document.querySelectorAll(".addCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+      const postComments = {
+                   post: {
+                      postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+                    },
+                    userId: parseInt(form.querySelector(".userId").value),
+                    comment: form.querySelector("#comment").value
+                  };
+
+                   const requestBody = {
+                          postComments : postComments,
+                          redirectPage: form.querySelector(".redirectPage").value,
+                          followerId : form.querySelector(".followerId").value
+                        };
+
+            fetch("/addComment", {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to add comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while adding the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachAddCommentFormListeners);
+
+    //Delete Comment
+function attachDeleteCommentFormListeners() {
+    const forms = document.querySelectorAll(".deleteCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+             const postComments = {
+               post: {
+                 postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+               },
+               userId: parseInt(form.querySelector(".userId").value),
+               id: parseInt(form.querySelector(".commentId").value)
+             };
+
+             const requestBody = {
+                    postComments : postComments,
+                    redirectPage: form.querySelector(".redirectPage").value,
+                    followerId : parseInt(form.querySelector(".followerId").value)
+                  };
+
+            fetch("/deleteComment", {
+                method: "DELETE",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to delete comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while deleting the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachDeleteCommentFormListeners);
+
+    //Edit Comment
+function attachEditCommentFormListeners() {
+    const forms = document.querySelectorAll(".editCommentForm");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated");
+                return;
+            }
+
+            const postComments = {
+                    post: {
+                      postId: parseInt(form.querySelector(".postId").value), // Select fields from current form
+                    },
+                    userId: parseInt(form.querySelector(".userId").value),
+                    id : parseInt(form.querySelector(".commentId").value),
+                    comment: form.querySelector(".comment").value
+                  };
+
+                   const requestBody = {
+                          postComments : postComments,
+                          redirectPage: form.querySelector(".redirectPage").value,
+                          followerId : parseInt(form.querySelector(".followerId").value),
+                        };
+
+
+            fetch("/editComment", {
+                method: "PUT",
+                body: JSON.stringify(requestBody),
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "text/html"
+                }
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.text().then((html) => {
+                        // Replace entire document content
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                } else {
+                    throw new Error("Failed to edit comment");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while editing the comment.");
+            });
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", attachEditCommentFormListeners);
+
+
 </script>
-<script src="/home.js"></script>
-<script src="script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

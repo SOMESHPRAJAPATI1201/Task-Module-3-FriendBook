@@ -19,8 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,19 +110,42 @@ public class RestPostController {
         responseMap.clear();
         User user1 = userServices.getById(following.getUserId());
         User follower = userServices.getById(following.getFollowerId());
-        responseMap.put("user", follower);
+        responseMap.put("followerCount", followingServices.getFollowers1(follower.getUserId()).size());
+        responseMap.put("postCount", postServices.getMyPostsList(follower.getUserId()).size());
+        responseMap.put("followingCount", followingServices.getFollowings(following.getFollowerId()).size());
         responseMap.put("name", user1.getFirstname() + " " + user1.getLastname());
         responseMap.put("user_id", user1.getUserId());
-        if (acceptHeader.contains("application/json")) {
-            responseMap.clear();
-            responseMap.put("alert", "Your Posts Has Been Fetched Succesfully.");
-            responseMap.put("postList", postServices.getFilterPostsList(postServices.getMyPostsList(follower.getUserId())));
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(responseMap);
+        if (followingServices.getByUserIdAndFollowerId(user1.getUserId(), follower.getUserId()) == null) {
+            if (acceptHeader.contains("application/json")) {
+                responseMap.clear();
+                responseMap.put("alert", "You have to follow user to see his posts.");
+                responseMap.put("postList", new ArrayList<>());
+                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(responseMap);
+            } else {
+                responseMap.put("user", follower);
+                responseMap.put("postList", new ArrayList<>());
+                responseMap.put("alert", "You have to follow user to see his posts.");
+                return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf("userProfilePost", responseMap));
+            }
         } else {
-            responseMap.put("postList", postServices.getMyPostsList(follower.getUserId()));
-            responseMap.put("alert", "User Has Been Fetched Succesfully.");
-            return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf("userProfilePost", responseMap));
+            follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(user1.getUserId(), follower.getUserId()).getFollowStatus().toString());
+            if (acceptHeader.contains("application/json")) {
+                responseMap.clear();
+                responseMap.put("alert", "Your Posts Has Been Fetched Succesfully.");
+                responseMap.put("postList", postServices.getFilterPostsList(postServices.getMyPostsList(follower.getUserId())));
+                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(responseMap);
+            } else {
+                responseMap.put("user", follower);
+                if (followingServices.getByUserIdAndFollowerId(user1.getUserId(), follower.getUserId()).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                    responseMap.put("postList", postServices.getMyPostsList(follower.getUserId()));
+                } else {
+                    responseMap.put("postList", new ArrayList<>());
+                }
+                responseMap.put("alert", "User Has Been Fetched Succesfully.");
+                return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf("userProfilePost", responseMap));
+            }
         }
+
     }
 
 
@@ -130,7 +155,7 @@ public class RestPostController {
     }
 
     @PostMapping(value = "/addComment", consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> setComment(@RequestBody Map<String, Object>  responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
+    public ResponseEntity<?> setComment(@RequestBody Map<String, Object> responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) throws Throwable {
         PostComments postComments = new ObjectMapper().convertValue(responseBody.get("postComments"), PostComments.class);
         String redirectPage = (String) responseBody.get("redirectPage");
         Integer postId = postComments.getPost().getPostId();
@@ -149,9 +174,26 @@ public class RestPostController {
             if (responseBody.get("followerId") == null) {
                 responseMap.put("postList", postServices.getPostsList(userId));
             } else {
-                Integer followerId = Integer.parseInt((String)responseBody.get("followerId"));
-                responseMap.put("user", userServices.getById(followerId));
-                responseMap.put("postList", postServices.getMyPostsList(followerId));
+                Integer followerId = Integer.parseInt((String) responseBody.get("followerId"));
+                if (followingServices.getByUserIdAndFollowerId(userId, followerId) == null) {
+                    responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                    responseMap.put("user", userServices.getById(followerId));
+                    responseMap.put("postList", new ArrayList<>());
+                } else {
+                    User follower = userServices.getById(followerId);
+                    follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString());
+                    responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                    responseMap.put("user", follower);
+                    if (followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                        responseMap.put("postList", postServices.getMyPostsList(followerId));
+                    } else {
+                        responseMap.put("postList", new ArrayList<>());
+                    }
+                }
             }
             responseMap.put("user_id", userId);
             responseMap.put("userList", followingServices.getFollowing1(userId));
@@ -164,8 +206,8 @@ public class RestPostController {
         }
     }
 
-    @PostMapping(value = "/deleteComment",consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> deleteComment(@RequestBody Map<String, Object>  responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
+    @DeleteMapping(value = "/deleteComment", consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> deleteComment(@RequestBody Map<String, Object> responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
         PostComments postComments = new ObjectMapper().convertValue(responseBody.get("postComments"), PostComments.class);
         String redirectPage = (String) responseBody.get("redirectPage");
         Integer id = postComments.getId();
@@ -183,9 +225,26 @@ public class RestPostController {
             if (responseBody.get("followerId") == null) {
                 responseMap.put("postList", postServices.getPostsList(userId));
             } else {
-                Integer followerId = Integer.parseInt((String)responseBody.get("followerId"));
-                responseMap.put("user", userServices.getById(followerId));
-                responseMap.put("postList", postServices.getMyPostsList(followerId));
+                Integer followerId = (Integer) responseBody.get("followerId");
+                if (followingServices.getByUserIdAndFollowerId(userId, followerId) == null) {
+                    responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                    responseMap.put("user", userServices.getById(followerId));
+                    responseMap.put("postList", new ArrayList<>());
+                } else {
+                    User follower = userServices.getById(followerId);
+                    follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString());
+                    responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                    responseMap.put("user", follower);
+                    if (followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                        responseMap.put("postList", postServices.getMyPostsList(followerId));
+                    } else {
+                        responseMap.put("postList", new ArrayList<>());
+                    }
+                }
             }
             responseMap.put("user_id", userId);
             responseMap.put("alert", response);
@@ -198,8 +257,8 @@ public class RestPostController {
         }
     }
 
-    @PostMapping(value = "/editComment",consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> editComment(@RequestBody Map<String, Object>  responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
+    @PutMapping(value = "/editComment", consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> editComment(@RequestBody Map<String, Object> responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
         PostComments postComments = new ObjectMapper().convertValue(responseBody.get("postComments"), PostComments.class);
         String redirectPage = (String) responseBody.get("redirectPage");
         Integer userId = postComments.getUserId();
@@ -220,9 +279,26 @@ public class RestPostController {
                 if (responseBody.get("followerId") == null) {
                     responseMap.put("postList", postServices.getPostsList(userId));
                 } else {
-                    Integer followerId = Integer.parseInt((String)responseBody.get("followerId"));
-                    responseMap.put("user", userServices.getById(followerId));
-                    responseMap.put("postList", postServices.getMyPostsList(followerId));
+                    Integer followerId = Integer.parseInt((String) responseBody.get("followerId"));
+                    if (followingServices.getByUserIdAndFollowerId(userId, followerId) == null) {
+                        responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                        responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                        responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                        responseMap.put("user", userServices.getById(followerId));
+                        responseMap.put("postList", new ArrayList<>());
+                    } else {
+                        User follower = userServices.getById(followerId);
+                        follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString());
+                        responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                        responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                        responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                        responseMap.put("user", follower);
+                        if (followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                            responseMap.put("postList", postServices.getMyPostsList(followerId));
+                        } else {
+                            responseMap.put("postList", new ArrayList<>());
+                        }
+                    }
                 }
                 responseMap.put("user_id", userId);
                 responseMap.put("alert", response.get("mesg"));
@@ -244,9 +320,26 @@ public class RestPostController {
                 if (responseBody.get("followerId") == null) {
                     responseMap.put("postList", postServices.getPostsList(userId));
                 } else {
-                    Integer followerId = Integer.parseInt((String)responseBody.get("followerId"));
-                    responseMap.put("user", userServices.getById(followerId));
-                    responseMap.put("postList", postServices.getMyPostsList(followerId));
+                    Integer followerId = (Integer) responseBody.get("followerId");
+                    if (followingServices.getByUserIdAndFollowerId(userId, followerId) == null) {
+                        responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                        responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                        responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                        responseMap.put("user", userServices.getById(followerId));
+                        responseMap.put("postList", new ArrayList<>());
+                    } else {
+                        User follower = userServices.getById(followerId);
+                        follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString());
+                        responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                        responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                        responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                        responseMap.put("user", follower);
+                        if (followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                            responseMap.put("postList", postServices.getMyPostsList(followerId));
+                        } else {
+                            responseMap.put("postList", new ArrayList<>());
+                        }
+                    }
                 }
                 responseMap.put("user_id", userId);
                 responseMap.put("alert", response.get("mesg"));
@@ -278,8 +371,25 @@ public class RestPostController {
             responseMap.put("postList", postServices.getPostsList(userId));
         } else {
             Integer followerId = (Integer) requestBody.get("followerId");
-            responseMap.put("user", userServices.getById(followerId));
-            responseMap.put("postList", postServices.getMyPostsList(followerId));
+            if (followingServices.getByUserIdAndFollowerId(userId, followerId) == null) {
+                responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                responseMap.put("user", userServices.getById(followerId));
+                responseMap.put("postList", new ArrayList<>());
+            } else {
+                User follower = userServices.getById(followerId);
+                follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString());
+                responseMap.put("followerCount", followingServices.getFollowers1(followerId).size());
+                responseMap.put("postCount", postServices.getMyPostsList(followerId).size());
+                responseMap.put("followingCount", followingServices.getFollowings(followerId).size());
+                responseMap.put("user", follower);
+                if (followingServices.getByUserIdAndFollowerId(userId, followerId).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")) {
+                    responseMap.put("postList", postServices.getMyPostsList(followerId));
+                } else {
+                    responseMap.put("postList", new ArrayList<>());
+                }
+            }
         }
         if (acceptHeader.contains("application/json")) {
             responseMap.clear();

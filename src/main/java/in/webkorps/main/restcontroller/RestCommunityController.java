@@ -1,8 +1,10 @@
 package in.webkorps.main.restcontroller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import in.webkorps.main.config.TemplateAndResolverConfig;
 import in.webkorps.main.dto.WrapperUser;
 import in.webkorps.main.entity.Following;
+import in.webkorps.main.entity.PostComments;
 import in.webkorps.main.entity.User;
 import in.webkorps.main.service.FollowingServices;
 import in.webkorps.main.service.PostServices;
@@ -53,8 +55,10 @@ public class RestCommunityController {
     }
 
     @PostMapping(value = "/setFollowing", produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getFollowingUsers(@RequestPart("following") Following following1, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
+    public ResponseEntity<?> getFollowingUsers(@RequestBody Map<String,Object> responseBody, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
         responseMap.clear();
+        Following following1 = new ObjectMapper().convertValue(responseBody.get("following"), Following.class);
+        String redirectPage = (String) responseBody.get("redirectPage");
         Integer userId = following1.getUserId();
         Following following = followingServices.SetFollowing(following1.getFollowerId(), userId);
         User user = userServices.getById(userId);
@@ -62,6 +66,7 @@ public class RestCommunityController {
         responseMap.put("user_id", userId);
         responseMap.put("follower_Id", following.getFollowerId());
         List<WrapperUser> wrapperUsers = userServices.getFollowingUsersList(userId);
+        User follower = userServices.getById(following1.getFollowerId());
         if (wrapperUsers.size() != 0) {
             for (WrapperUser user1 : wrapperUsers) {
                 if (followingServices.getByUserIdAndFollowerId(userId, user1.getUserId()) == null) {
@@ -75,9 +80,30 @@ public class RestCommunityController {
                 responseMap.put("Message", following.getFollowStatus());
                 return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(responseMap);
             } else {
-                responseMap.put("alert", "User Unfollowed");
-                responseMap.put("userList", followingServices.getFollowings(userId));
-                return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf("following", responseMap));
+                if (followingServices.getByUserIdAndFollowerId(following1.getUserId(), following1.getFollowerId()) == null) {
+                    responseMap.put("followerCount", followingServices.getFollowers1(following1.getFollowerId()).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(following1.getFollowerId()).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(following1.getFollowerId()).size());
+                    responseMap.put("user",follower);
+                    responseMap.put("alert", "REQUESTED");
+                    responseMap.put("userList", followingServices.getFollowings(userId));
+                    responseMap.put("postList", new ArrayList<>());
+                    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf(redirectPage, responseMap));
+                } else {
+                    follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(following1.getUserId(), following.getFollowerId()).getFollowStatus().toString());
+                    responseMap.put("followerCount", followingServices.getFollowers1(following1.getFollowerId()).size());
+                    responseMap.put("postCount", postServices.getMyPostsList(following1.getFollowerId()).size());
+                    responseMap.put("followingCount", followingServices.getFollowings(following1.getFollowerId()).size());
+                    responseMap.put("user",follower);
+                    responseMap.put("alert", follower.getFollowStatus().toString());
+                    responseMap.put("userList", followingServices.getFollowings(userId));
+                    if(followingServices.getByUserIdAndFollowerId(following1.getUserId(), following.getFollowerId()).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")){
+                        responseMap.put("postList", postServices.getMyPostsList(following.getFollowerId()));
+                    }else{
+                        responseMap.put("postList",new ArrayList<>());
+                    }
+                    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf(redirectPage, responseMap));
+                }
             }
         } else {
             responseMap.put("name", user.getFirstname() + " " + user.getLastname());
@@ -87,7 +113,28 @@ public class RestCommunityController {
             responseMap.put("followerRequestCount", followingServices.getFollowerCount(userId));
             responseMap.put("followingRequestCount", followingServices.getFollowingCount((userId)));
             responseMap.put("RequestCount", followingServices.getRequestCount(userId));
-            return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf("home", responseMap));
+            redirectPage = "home";
+            if (followingServices.getByUserIdAndFollowerId(following1.getUserId(), following.getFollowerId()) == null && redirectPage.equalsIgnoreCase("userProfilePost")) {
+                responseMap.put("followerCount", followingServices.getFollowers1(following.getUserId()).size());
+                responseMap.put("postCount", postServices.getMyPostsList(following.getUserId()).size());
+                responseMap.put("followingCount", followingServices.getFollowings(following.getUserId()).size());
+                responseMap.put("postList",new ArrayList<>());
+                responseMap.put("user", follower);
+                redirectPage = "userProfilePost";
+            }else{
+                responseMap.put("followerCount", followingServices.getFollowers1(following.getUserId()).size());
+                responseMap.put("postCount", postServices.getMyPostsList(following.getUserId()).size());
+                responseMap.put("followingCount", followingServices.getFollowings(following.getUserId()).size());
+                if(followingServices.getByUserIdAndFollowerId(following1.getUserId(), following.getFollowerId()).getFollowStatus().toString().equalsIgnoreCase("UNFOLLOW")){
+                    responseMap.put("postList", postServices.getMyPostsList(following.getFollowerId()));
+                }else{
+                    responseMap.put("postList",new ArrayList<>());
+                }
+                follower.setFollowStatus(followingServices.getByUserIdAndFollowerId(following1.getUserId(), following.getFollowerId()).getFollowStatus().toString());
+                responseMap.put("user", follower);
+                redirectPage = "userProfilePost";
+            }
+            return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(TemplateAndResolverConfig.renderHtmlWithThymeleaf(redirectPage, responseMap));
         }
     }
 
@@ -138,7 +185,6 @@ public class RestCommunityController {
     @PostMapping(value = "/setFollowing2", produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> setFollowing2(@RequestPart("following") Following following, @RequestHeader(value = HttpHeaders.ACCEPT, defaultValue = "text/html") String acceptHeader) {
         responseMap.clear();
-        System.out.println(following.getFollowerId()+" "+following.getUserId());
         Following following1 = followingServices.SetFollowing(following.getFollowerId(), following.getUserId());
         User user = userServices.getById(following.getUserId());
         if (getFollowers(following1.getUserId()).size() != 0) {
@@ -326,7 +372,7 @@ public class RestCommunityController {
 
 
 
-    public List<WrapperUser> getFollowers(Integer userId) {
+    public List<WrapperUser>  getFollowers(Integer userId) {
         List<WrapperUser> allUsers = userServices.getUsersList();
         List<WrapperUser> renderUsers = new ArrayList<>();
         List<Following> followers = followingServices.getFollowers(userId);

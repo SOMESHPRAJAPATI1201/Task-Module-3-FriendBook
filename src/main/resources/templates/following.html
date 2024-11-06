@@ -107,50 +107,22 @@
                         </div>
                         <div class="col-md-8">
                             <div class="card-body">
-                                <button class="card-title" type="button"
-                                        th:id="'commentModalTrigger' + ${user.userId}"
-                                        data-bs-toggle="modal"
-                                        th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}"
-                                        th:attr="data-bs-target='#commentModal' + ${user.userId}"
-                                        style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white;margin-left:-11px;">
-                                </button>
+                                <form class="userDetails">
+                                    <input type="hidden" th:value="${user.userId}" class="followerId">
+                                    <input type="hidden"th:value="${user_id}" class="userId">
+                                    <button th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}" type="submit" style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white; margin-left : -13px;"></button>
+                                </form>
                                 <p class="card-text">This is a wider card with supporting text below as a natural
                                     lead-in to additional content. This content is a little bit longer.</p>
-                                <form class="setFollowingForm">
+                                <form class="setFollowingForm" novalidate>
                                     <input type="hidden" th:value="${user.userId}" class="followerId" name="followerId">
+                                    <input type="hidden" value="following" class="redirectPage" name="redirectPage">
                                     <input type="hidden" th:value="${user_id}" class="userId" name="userId">
                                     <button class="btn btn-primary" type="submit"
                                             th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
                                 </form>
                                 <p class="card-text my-1"><small class="text-body-secondary">Last updated 3 mins
                                     ago</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--             modal-->
-                <div class="modal fade" th:id="'commentModal' + ${user.userId}" tabindex="-1"
-                     aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel" th:text="${user.firstname + ' ' + user.lastname}"></h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <table class="table">
-                                    <thead>
-                                    </thead>
-                                    <tbody>
-                                    <h1 th:text="${user.firstname}"></h1>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -248,21 +220,24 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const formData = new FormData();
-
       const following = {
         userId:form.querySelector(".userId").value,
         followerId:form.querySelector(".followerId").value
       };
+      const redirectPage = form.querySelector(".redirectPage").value;
 
-      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+      const requestBody = {
+           following: following,
+           redirectPage: redirectPage,
+      };
 
       fetch("/setFollowing", {
         method: "POST",
-        body: formData,
-        headers: {
-          Accept: "text/html",
-        },
+        body: JSON.stringify(requestBody),
+         headers: {
+            "Content-Type": "application/json",
+            Accept: "text/html"
+            }
       })
         .then((response) => {
           if (response.ok) {
@@ -287,6 +262,63 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => {
           console.error("Error:", error);
           alert("An error occurred while sending request.");
+        });
+    });
+  });
+});
+
+//getUserDetails
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".userDetails");
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+            userId:form.querySelector(".userId").value,
+            followerId:form.querySelector(".followerId").value,
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/getPostsById", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("User Fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("User fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch user.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching user.");
         });
     });
   });

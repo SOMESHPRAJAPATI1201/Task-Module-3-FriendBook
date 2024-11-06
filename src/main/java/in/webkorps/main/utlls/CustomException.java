@@ -1,9 +1,9 @@
-package in.webkorps.main.utlls;
-
-public class CustomException extends RuntimeException{
-
-    public CustomException(String message) {
-        super(message);
-    }
-
-}
+//package in.webkorps.main.utlls;
+//
+//public class CustomException extends RuntimeException{
+//
+//    public CustomException(String message) {
+//        super(message);
+//    }
+//
+//}
