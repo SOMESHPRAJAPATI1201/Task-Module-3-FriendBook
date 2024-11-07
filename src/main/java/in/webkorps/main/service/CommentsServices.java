@@ -1,7 +1,8 @@
 package in.webkorps.main.service;
 
 import in.webkorps.main.dto.WrapperComments;
-import in.webkorps.main.entity.*;
+import in.webkorps.main.entity.PostComments;
+import in.webkorps.main.entity.Posts;
 import in.webkorps.main.repository.CommentsRepo;
 import in.webkorps.main.repository.LikesRepo;
 import in.webkorps.main.repository.PostsRepo;

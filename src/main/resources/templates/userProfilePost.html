@@ -40,7 +40,7 @@
     </div>
 </div>
 <header>
-    <!-- navbar -->
+    <!-- //navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">FriendBook - Connecting People</a>
@@ -50,7 +50,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
-                 aria-labelledby="offcanvasDarkNavbarLabel" style="width: 750px;">
+                 aria-labelledby="offcanvasDarkNavbarLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
                         <h3>Welcome, <span th:text="${name}"></span></h3>
@@ -59,82 +59,34 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
-                        <div class="row">
-                            <li class="nav-item col-lg-3">
-                                <form th:action="@{/getHomePage}" method="post">
-                                    <input type="hidden" th:value="${user_id}" name="userId" />
-                                    <input type="hidden" th:value="${name}" name="firstname" />
-                                    <button type="submit" class="btn btn-outline-warning">
-                                        Home
-                                    </button>
-                                </form>
-                            </li>
-                            <li class="nav-item col-lg-3">
-                                <form th:action="@{/viewProfile}" method="post">
-                                    <input type="hidden" th:value="${user_id}" name="userId" />
-                                    <button type="submit" class="btn btn-outline-success"
-                                            style="margin-left: -101px;">
-                                        View Profile
-                                    </button>
-                                </form>
-                            </li>
-                            <li class="nav-item dropdown col-lg-3">
-                                <form th:action="@{/getMyPosts}" method="post">
-                                    <input type="hidden" th:value="${user_id}" name="userId" />
-                                    <button type="submit" class="btn btn-outline-info" style="margin-left: -162px;">
-                                        My Posts
-                                    </button>
-                                </form>
-                            </li>
-                            <li class="nav-item col-lg-3">
-                                <button href="logout" class="btn btn-outline-danger" style="margin-left: -242px;">
-                                    Logout
-                                </button>
-                            </li>
-                        </div>
-                    </ul>
-                    <br>
-                    <form class="d-flex mt-3" role="search" onsubmit="return false;">
-                        <input class="form-control me-2" id="myInput" type="search" placeholder="Search Users"
-                               aria-label="Search" style="width: 192px;">
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-success" type="submit">Search</button>
                     </form>
-
-                    <!--   Following-->
-                    <div class="container">
-                        <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top: 10px;">
-                            <div th:each="user : ${userList}" class="col">
-                                <div class="card mb-3" style="max-width: 540px;">
-                                    <div class="row g-0">
-                                        <div class="col-md-4">
-                                            <img th:src="@{/users/{name}(name=${user.imageName})}"
-                                                 class="img-fluid rounded-start" style="height: 233px;" alt="...">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body" style="height: 204px;">
-                                                <h5 class="card-title"
-                                                    th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}">
-                                                </h5>
-                                                <p class="card-text">Post : 44 <br>Followers : 50 <br> Following :
-                                                    15
-                                                </p>
-                                                <form th:action="@{/setFollowing}" method="post">
-                                                    <input type="hidden" th:value="${user.userId}"
-                                                           name="followerId">
-                                                    <input type="hidden" th:value="${user_id}" name="userId">
-                                                    <button class="btn btn-primary" type="submit"
-                                                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
-                                                </form>
-                                                <p class="card-text my-1"><small class="text-body-secondary">Last
-                                                    updated 3 mins ago</small></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
+                        <li class="nav-item">
+                            <form th:action="@{/getHomePage}" method="post">
+                                <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <input type="hidden" th:value="${name}" name="firstname"/>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">Home</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <form th:action="@{/viewProfile}" method="post">
+                                <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">View Profile</button>
+                            </form>                            </li>
+                        <li class="nav-item dropdown">
+                            <form class="userDetails">
+                                <input type="hidden" th:value="${user_id}" class="followerId">
+                                <input type="hidden"th:value="${user_id}" class="userId">
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">My Posts</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="logout" style="margin-left: 6px;">Logout</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -156,8 +108,11 @@
                     <input type="hidden" th:value="${user.userId}" class="followerId" name="followerId">
                     <input type="hidden" th:value="${user_id}" class="userId" name="userId">
                     <input type="hidden" value="userProfilePost" class="redirectPage" name="redirectPage">
-                    <button class="btn btn-primary" type="submit"
-                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
+                    <button class="btn btn-primary" type="submit" th:if="${user.followStatus != null && user.followStatus != 'none'}"
+                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}">
+                    </button>
+<!--                    <button class="btn btn-primary" type="submit"-->
+<!--                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>-->
                 </form>
             </div>
         </div>
@@ -726,6 +681,64 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+    //getUserDetails
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".userDetails");
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+            userId:form.querySelector(".userId").value,
+            followerId:form.querySelector(".followerId").value,
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/getPostsById", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("User Fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("User fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch user.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching user.");
+        });
+    });
+  });
+});
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

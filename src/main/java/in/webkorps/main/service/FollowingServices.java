@@ -3,7 +3,6 @@ package in.webkorps.main.service;
 
 import in.webkorps.main.dto.WrapperUser;
 import in.webkorps.main.entity.Following;
-import in.webkorps.main.entity.User;
 import in.webkorps.main.repository.FollowingsRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FollowingServices {

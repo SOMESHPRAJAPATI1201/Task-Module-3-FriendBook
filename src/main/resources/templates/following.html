@@ -42,33 +42,28 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
                         <li class="nav-item">
                             <form th:action="@{/getHomePage}" method="post">
                                 <input type="hidden" th:value="${user_id}" name="userId"/>
                                 <input type="hidden" th:value="${name}" name="firstname"/>
-                                <button type="submit"
-                                        style="background-color: #212529; border: none; color: white; margin-top: 10px;">
-                                    Home
-                                </button>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">Home</button>
                             </form>
                         </li>
                         <li class="nav-item">
                             <form th:action="@{/viewProfile}" method="post">
                                 <input type="hidden" th:value="${user_id}" name="userId"/>
-                                <button type="submit"
-                                        style="background-color: #212529; border: none; color: white; margin-top: 10px;">
-                                    View Profile
-                                </button>
-                            </form>
-                        </li>
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">View Profile</button>
+                            </form>                            </li>
                         <li class="nav-item dropdown">
-                            <form th:action="@{/getMyPosts}" method="post">
-                                <input type="hidden" th:value="${user_id}" name="userId"/>
-                                <button type="submit"
-                                        style="background-color: #212529; border: none; color: white; margin-top: 10px;">
-                                    My Posts
-                                </button>
+                            <form class="userDetails">
+                                <input type="hidden" th:value="${user_id}" class="followerId">
+                                <input type="hidden"th:value="${user_id}" class="userId">
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">My Posts</button>
                             </form>
                         </li>
                         <li class="nav-item">
@@ -201,7 +196,7 @@
             var value = $(this).val().toLowerCase();
             console.log(value)
             $(".col").filter(function() {
-                let cardTitle = $(this).find(".card-title").text().toLowerCase();
+                let cardTitle = $(this).find("button[type='submit']").text().toLowerCase();
                 $(this).toggle(cardTitle.indexOf(value) > -1);
             });
         });

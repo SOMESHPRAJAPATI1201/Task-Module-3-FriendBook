@@ -67,12 +67,10 @@
                             </form>
                         </li>
                         <li class="nav-item dropdown">
-                            <form th:action="@{/getMyPosts}" method="post">
-                                <input type="hidden" th:value="${user_id}" name="userId"/>
-                                <button type="submit"
-                                        style="background-color: #212529; border: none; color: white; margin-top: 10px;">
-                                    My Posts
-                                </button>
+                            <form class="userDetails">
+                                <input type="hidden" th:value="${user_id}" class="followerId">
+                                <input type="hidden"th:value="${user_id}" class="userId">
+                                <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">My Posts</button>
                             </form>
                         </li>
                         <li class="nav-item">
@@ -270,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
             var value = $(this).val().toLowerCase();
             console.log(value)
             $(".col").filter(function() {
-                let cardTitle = $(this).find(".card-title").text().toLowerCase();
+                let cardTitle = $(this).find("button[type='submit']").text().toLowerCase();
                 $(this).toggle(cardTitle.indexOf(value) > -1);
             });
         });

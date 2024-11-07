@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.webkorps.main.config.TemplateAndResolverConfig;
 import in.webkorps.main.dto.WrapperUser;
 import in.webkorps.main.entity.Following;
-import in.webkorps.main.entity.PostComments;
 import in.webkorps.main.entity.User;
 import in.webkorps.main.service.FollowingServices;
 import in.webkorps.main.service.PostServices;

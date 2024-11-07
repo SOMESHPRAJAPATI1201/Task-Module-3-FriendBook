@@ -65,8 +65,9 @@
                                 <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">View Profile</button>
                             </form>                            </li>
                         <li class="nav-item dropdown">
-                            <form th:action="@{/getMyPosts}" method="post">
-                                <input type="hidden" th:value="${user_Id}" name="userId"/>
+                            <form class="userDetails">
+                                <input type="hidden" th:value="${user_Id}" class="followerId">
+                                <input type="hidden"th:value="${user_Id}" class="userId">
                                 <button type="submit" style="background-color: #212529; border: none; color: white; margin-top: 10px;">My Posts</button>
                             </form>
                         </li>
@@ -80,7 +81,7 @@
     </nav>
 </header>
 <main class="my-5">
-    <div class="row">
+    <div class="row" style="width: 1531px;">
         <div class="col-lg-6">
             <img th:src="@{/users/{name}(name=${user.imageName})}"
                  style="height: auto; width: 555px; margin-left: 50px;"
@@ -280,6 +281,62 @@
     </div>
 </footer>
 <script>
+    //getUserDetails
+document.addEventListener("DOMContentLoaded", function () {
+  const forms = document.querySelectorAll(".userDetails");
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const formData = new FormData();
+
+      const following = {
+            userId:form.querySelector(".userId").value,
+            followerId:form.querySelector(".followerId").value,
+      };
+
+      formData.append("following",  new Blob([JSON.stringify(following)], { type: "application/json" }));
+
+      fetch("/getPostsById", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "text/html",
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/html")) {
+              console.log("User Fetched successfully.");
+              return response.text().then((html) => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+            } else {
+              return response.json().then((data) => {
+                console.log("User fetched successfully.");
+                alert(data.alert);
+              });
+            }
+          } else {
+            throw new Error("Failed to fetch user.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while fetching user.");
+        });
+    });
+  });
+});
     //UpdatePage
 document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('updateForm');

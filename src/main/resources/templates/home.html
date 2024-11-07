@@ -106,8 +106,9 @@
                                 </a>
                             </li>
                             <li class="nav-item dropdown col-lg-3">
-                                <form th:action="@{/getMyPosts}" method="post">
-                                    <input type="hidden" th:value="${user_id}" name="userId"/>
+                                <form class="userDetails">
+                                    <input type="hidden" th:value="${user_id}" class="followerId">
+                                    <input type="hidden"th:value="${user_id}" class="userId">
                                     <button type="submit" class="btn btn-secondary" style="margin-left: -155px;">
                                         My Posts
                                     </button>
@@ -131,26 +132,25 @@
                                     <div class="row g-0">
                                         <div class="col-md-4">
                                             <img img th:src="@{/users/{name}(name=${user.imageName})}"
-                                                 class="img-fluid rounded-start" style="height: 233px;"
+                                                 class="img-fluid rounded-start" style="height: 169px;"
                                                  alt="...">
                                         </div>
                                         <div class="col-md-8">
-                                            <div class="card-body" style="height: 204px;">
+                                            <div class="card-body" style="height: 170px;">
                                                 <form class="userDetails">
                                                     <input type="hidden" th:value="${user.userId}" class="followerId">
                                                     <input type="hidden"th:value="${user_id}" class="userId">
                                                     <button th:text="${user.firstname + ' ' + user.lastname +' ('+user.displayname+')'}" type="submit" style="font-size: 20px; font-weight: bold;text-decoration: none;border: none;background: white; margin-left : -13px;"></button>
                                                 </form>
-                                                <p class="card-text">Post : 44 <br>Followers : 50 <br>
-                                                    Following : 15
+                                                <p class="card-text">
+                                                    <!--Enter Text-->
                                                 </p>
                                                 <form class="setFollowingForm">
                                                     <input type="hidden" th:value="${user.userId}"
                                                            name="followerId" class="followerId">
                                                     <input type="hidden" th:value="${user_id}"
                                                            name="userId" class="userId">
-                                                    <button class="btn btn-primary" type="submit"
-                                                            th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
+                                                    <button class="btn btn-primary" type="submit" style="margin-top: -2px; margin-left: 9px;" th:text="${user.followStatus != null ? user.followStatus : 'FOLLOW'}"></button>
                                                 </form>
                                                 <p class="card-text my-1"><small
                                                         class="text-body-secondary">Last
@@ -455,7 +455,7 @@
             var value = $(this).val().toLowerCase();
             console.log(value)
             $(".col").filter(function() {
-                let cardTitle = $(this).find(".card-title").text().toLowerCase();
+                let cardTitle = $(this).find("button[type='submit']").text().toLowerCase();
                 $(this).toggle(cardTitle.indexOf(value) > -1);
             });
         });

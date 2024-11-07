@@ -27,4 +27,8 @@ public class PostComments {
     @JoinColumn(name = "post_id")
     private Posts post;
 
+    public String toString(){
+        return userId+" "+post.getPostId()+" "+comment+" "+id;
+    }
+
 }
